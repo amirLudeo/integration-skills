@@ -337,7 +337,7 @@ Context files (read first; relative to this workflow file):
 - Game ID (Studio Lab → Game Options → Info; the game version uuid):
 - Studio MCP server in use (e.g. `ludeo-mcp`):
 - Environments (a cache — re-read with `list_game_environments` before any write):
-  - <name> · <envId> · Beta Version Name: <name | null | ""> · Steam branch: <name | default (a user saying "public" means this) | ?> · integrator in it? <yes/no/?> · invited: <names>
+  - <name> · <envId> · Beta Version Name: <name | null | ""> · default? <yes/no/?> · Steam branch: <name | default (a user saying "public" means this) | ?> · integrator in it? <yes/no/?> · invited: <names>
 
 ## Launch model
 - Creator launch: menu-gated | boot-straight-to-gameplay
