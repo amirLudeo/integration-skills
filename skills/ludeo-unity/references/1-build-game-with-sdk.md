@@ -115,8 +115,8 @@ stable first (alongside the project, not a temp dir, so the `file:` path keeps r
   platform** holds every environment, and an integration often targets several (QA while iterating,
   production at ship). For implicit auth ask *"which Steam beta branch do you run it on?"* and record it as that
   environment's **Steam branch**. Then follow **Matching a branch to an environment** in [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md) — it
-  decides whether anything is written, and its write rules apply. `set_beta_version_name` isn't on production
-  yet, so expect to hand a write to the user in Studio Lab. A cloud run reads none of this; phase 7 binds it.
+  decides whether anything is written, and its write rules apply. A cloud run reads none of this; phase 7 binds
+  it.
 - **`runWithoutLauncher` is the implicit/explicit auth toggle** (the only auth switch — the plugin
   marshals the auth struct from it; no per-call `authDetails` like C++):
   - **Production + creator flows → `false` (implicit).** What the platform and creators run on, and a viable mode for the **whole** integration — you never have to use explicit. Supply **no** id (leave `launcherUserId` empty); the

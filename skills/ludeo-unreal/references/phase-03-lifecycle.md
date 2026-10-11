@@ -1036,9 +1036,8 @@ do you run it on?"* and record it as `steamBranch` on the environment confirmed 
 **Then match the branch to the environment.** Confirm which environment this build is for — Step 1 item 10
 recorded every environment in `sdkSetup.ludeoEnvironments`, and an integration often targets several (QA while
 iterating, production at ship). Then follow **Matching a branch to an environment** in [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md) — it
-decides whether anything is written, and its write rules apply. `set_beta_version_name` isn't on production yet,
-so expect to hand a write to the human in Studio Labs. A cloud run reads none of this (the `-cloud` path in §5.3
-skips the auth block); phase 7 binds it.
+decides whether anything is written, and its write rules apply. A cloud run reads none of this (the `-cloud` path
+in §5.3 skips the auth block); phase 7 binds it.
 
 #### Configuration Reference
 
