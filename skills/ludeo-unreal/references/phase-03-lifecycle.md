@@ -986,7 +986,7 @@ class GAMENAME_API AMyGameState : public AGameState
 
 ### 3.16 Implementation — Config Setup
 
-**Environment variable helper:** A `SetupLudeoEnv.ps1` script is available in `.ludeo/tools/`. Tell the human: "Before testing, run `. .ludeo/tools/SetupLudeoEnv.ps1` in PowerShell to set the environment variables interactively — the API key always; the Steam ID and Beta Version Name only for explicit-auth debugging, with the name copied from `sdkSetup.ludeoEnvironments`. Use `. .ludeo/tools/SetupLudeoEnv.ps1 check` to verify they're set."
+**Environment variable helper:** A `SetupLudeoEnv.ps1` script is available in `.ludeo/tools/`. Tell the human: "Before testing, run `. .ludeo/tools/SetupLudeoEnv.ps1` in PowerShell to set the environment variables interactively — the API key always; the Steam ID and Beta Version Name only for explicit-auth debugging, with the name I give you. Use `. .ludeo/tools/SetupLudeoEnv.ps1 check` to verify they're set." Give that name yourself: the environment's name as Matching step 1 in `ludeo-studio-mcp.md` defines it, from `sdkSetup.ludeoEnvironments` (never `{}`, `null` or empty; an unknown name means running step 1 first).
 
 Add to the **project's** `DefaultGame.ini` (NOT a plugin-specific ini file):
 
@@ -1026,7 +1026,7 @@ ApiKey=
 
 **Explicit auth: ask the human for their Steam id and which environment they'll debug against**, and set them
 here: `SteamAuthID`, and `BetaBranchName` = **that environment's current Beta Version Name** from
-`sdkSetup.ludeoEnvironments` — copy it, don't ask for a new one (via the ini keys above or their
+`sdkSetup.ludeoEnvironments` (its name as Matching step 1 in `ludeo-studio-mcp.md` defines it — only the default environment's none leaves it empty; a non-default environment with none is not run under explicit auth until step 5 names it — never leave `BetaBranchName` empty for it, since an empty value reaches the default environment; if step 5 writes nothing, debug against an environment that already has a name; `{}` never goes in, and an unknown name means running step 1 first) — copy it, don't ask for a new one (via the ini keys above or their
 `-SteamAuthID=` / `-LudeoBetaBranch=` equivalents). An empty `BetaBranchName` sends no name, which reaches the
 default environment (normally Production), the same as Steam's default branch — so never ask for a name *for*
 Production, and prefer debugging against a named QA environment. Only if that environment has no name yet, propose one — the next
