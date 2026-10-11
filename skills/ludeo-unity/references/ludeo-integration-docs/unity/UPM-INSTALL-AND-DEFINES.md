@@ -195,14 +195,14 @@ gated so it can never affect a production build:**
    LudeoManager.SessionManager.CreateSession(out var session);
    ```
 4. **Author `ludeo-dev.ini` with the *actual* QA values — do not ship placeholders.** Ask the user for
-   the tester Steam id and which environment to debug against, and copy that environment's name as Matching step 1 in [`ludeo-studio-mcp.md`](../../ludeo-studio-mcp.md) defines it
+   the tester Steam id and which environment to debug against, and copy that environment's beta name as Matching step 1 in [`ludeo-studio-mcp.md`](../../ludeo-studio-mcp.md) defines it
    (never `{}`, `null` or empty; an unknown name means running step 1 first) from `KYG.md` → Ludeo platform into `betaVersion` (required alongside the Steam id in no-launcher mode; a
    named QA environment, never Production), whether to skip the launcher, and any Ludeo id to auto-replay, and write them in:
    ```ini
    # Ludeo DEV/QA overrides — applied ONLY in LUDEO_DEV builds, never production. key = value; '#' = comment.
    runWithoutLauncher = true          # true = skip Steam/launcher auth for local QA
    launcherUserId     = QA_TESTER_1   # Steam id to run as in no-launcher mode — REQUIRED with betaVersion
-   betaVersion        = <QA env name> # target environment's Beta Version Name — REQUIRED with launcherUserId; never "public"
+   betaVersion        = <QA env's beta name> # target environment's Beta Version Name — REQUIRED with launcherUserId; never "public"
    ludeoToAutoStart   =               # a Ludeo id to auto-replay on launch; blank = normal capture
    ```
 5. **Ship `ludeo-dev.ini` to the build output** (a build post-process / copy step, same as any sidecar

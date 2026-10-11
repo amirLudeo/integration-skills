@@ -89,14 +89,14 @@ Unreal specifics to hand the skill, gate by gate:
   PIE/editor), adapted from this game's integration code (`new` → full suite, `sdkFree` → `s01` only).
   The ship gate has already taken `SteamAuthID` out of the ini, so these local runs go implicit: with no Steam
   client they fail, and with one they reach whatever environment that branch routes to. Pass `-SteamAuthID=<id>
-  -LudeoBetaBranch=<debug environment's name>` on the command line for them (never in `run.bat`).
+  -LudeoBetaBranch=<debug environment's beta name>` on the command line for them (never in `run.bat`) — the beta name as Matching step 1 in `ludeo-studio-mcp.md` defines it, never its display label.
 - **Gate 3 — build folder:** exec-path is the root `run.bat` that `tools/BuildAndPackage.bat` emits (from
   `tools/run.bat.template`); expect it, `Engine/`, `<Game>/Content/Paks/*.pak`, and the Shipping exe under
   `<Game>/Binaries/Win64/`. Check that `run.bat` contains `-cloud` — a `run.bat` generated any other way may not.
   (cloud-upload delegates this to the `validate-build` skill.)
 - **Gate 4 — upload:** `--exec-path` is the root `run.bat`, **never** the bare game exe — only `run.bat` passes `-cloud`, and
   without it the auth block runs on a machine with no Steam and activation fails;
-  `--build-creation-type` matches the compile gate; dry-run before the real upload; let the poll reach
+  `--build-creation-type` matches the compile gate; dry-run before the real upload, then show the exact resolved upload command and wait for an explicit go-ahead to *this* upload — a clean dry-run or an earlier approval isn't one — or let the human run it; let the poll reach
   `artifacts-created`, then poll `ludeo builds get` until it reports `success` — assigning needs that.
   Capture the returned `buildId`.
 

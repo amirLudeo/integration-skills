@@ -106,7 +106,7 @@ stable first (alongside the project, not a temp dir, so the `file:` path keeps r
   `Assets/LudeoSDK/Resources/`).
 - Set `apiKey` (required — Studio Lab → **Developer Tools → Keys**), `gameName`, `gameVersion`.
 - **Explicit auth only** (the `runWithoutLauncher` bullet below picks the mode — settle it first) — **ask for their Steam id and which environment they'll debug against**, then set `launcherUserId` = the
-  Steam id and `betaVersion` = **that environment's current Beta Version Name** from `KYG.md` (its name as Matching step 1 in `ludeo-studio-mcp.md` defines it — `{}` never goes in, and an unknown name means running step 1 first) — copy it, don't
+  Steam id and `betaVersion` = **that environment's current Beta Version Name** from `KYG.md` (its beta name as Matching step 1 in `ludeo-studio-mcp.md` defines it — `{}` never goes in, and an unknown name means running step 1 first) — copy it, don't
   ask for a new one. They are a **required pair** — `Activate` rejects if either is missing (`phase 3 · task 5`),
   so explicit auth needs a named environment (QA, never Production). Only if that environment has no name
   yet, propose one — the next bullet decides whether that's allowed. In implicit auth neither is read (see the
@@ -255,7 +255,7 @@ Only what can't be inferred from code:
   or were given a custom build (private tarball / `.unitypackage`).
 - **API Key** (→ `apiKey`) — Studio Lab → **Developer Tools → Keys**; **Game Name**, **Game Version**.
 - **Beta branch** — depends on the auth mode (below). Explicit: **Steam ID** + **which environment** to debug
-  against (→ `launcherUserId`, and `betaVersion` copied from that environment's name). Implicit: *"which Steam beta branch do
+  against (→ `launcherUserId`, and `betaVersion` copied from that environment's beta name per Matching step 1 in `ludeo-studio-mcp.md`, never its display label). Implicit: *"which Steam beta branch do
   you run it on?"* Either way it has to match the Beta Version Name on the environment this build targets.
 - **Is the integrator's own Steam user in each recorded environment?** Name the environment —
   *"has your Steam account been added to <environment> for this game?"* Creation silently fails without it:
