@@ -161,6 +161,8 @@ action still shows in the log, the timer keeps counting. So don't just note it. 
 required platform step with **two ways to do it**:
 
 > **A third way, when it exists:** if a tool for global triggers has reached [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md)’s table by the time you read this, prefer it over both — a **write**, so confirm first. None is deployed today, so expect to use one of the two below.
+>
+> **Goals and constraints** already have tools in that table: when they're in the orchestrator's tool list, it creates those with them once a build has sent the actions, and drops them from the offer below.
 
 1. **Recommended — the agent does it with browser control.** If the session has a browser tool, the orchestrator
    offers, once a build has sent these actions (Studio Lab lists an event only after that):
