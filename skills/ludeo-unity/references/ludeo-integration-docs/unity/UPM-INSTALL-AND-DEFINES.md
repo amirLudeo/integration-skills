@@ -92,7 +92,7 @@ Fields (`LudeoSDK.UnityScripts.LudeoSettings`):
 | `platformUrl` | Ludeo backend | Default `https://services.ludeo.com` |
 | `ludeoLogLevel`, `ludeoLogCategory` | SDK logging | `Error` / `All` is a sane default |
 | `coreDllReference` | `Release` or `Development` core dll | `Release` for shipping |
-| `betaVersion` | Steam beta branch name | **Explicit auth only** (`runWithoutLauncher = true`). In implicit mode the SDK reads the branch from the live Steam client; this field is not read. |
+| `betaVersion` | The target environment's Beta Version Name (required with `launcherUserId`) | **Explicit auth only** (`runWithoutLauncher = true`). In implicit mode the SDK reads the branch from the live Steam client; this field is not read. |
 | `runWithoutLauncher` | **The implicit/explicit auth toggle** (see below) | **`false` (implicit) in production** |
 | `launcherUserId` | Explicit-auth (`runWithoutLauncher = true`) user id | Set only in explicit mode |
 | `autoStartInLudeo` + `ludeoToAutoStart` | Dev: force a Ludeo to replay on init | Dev/testing only |
@@ -115,9 +115,9 @@ init.
   Activate on Steam-ready" and [`../05-LIFECYCLE-MANAGEMENT.md`](../05-LIFECYCLE-MANAGEMENT.md)
   "Startup sequence"). In implicit mode, `betaVersion` in `LudeoSettings` is not read — the SDK picks
   up the active beta branch from the live Steam client automatically.
-- **`true` = explicit auth — testing / CI / no-Steam.** You supply `launcherUserId` (a Steam user
-  id) and the SDK authenticates as that user **without Steam running**. Optionally set `betaVersion`
-  to match your Studio Lab environment.
+- **`true` = explicit auth — debugging without Steam; replaced before shipping.** You supply `launcherUserId` (a Steam user
+  id) and the SDK authenticates as that user **without Steam running**. Set `betaVersion` with it —
+  the two are a required pair — matching the Beta Version Name of your Studio Lab environment.
 
 **Don't confuse the two:** enabling `runWithoutLauncher` for a Steam build switches it *out* of
 implicit mode and makes it send a supplied-id auth struct — leave it **off** (and `launcherUserId`
@@ -133,8 +133,9 @@ empty) for implicit Steam auth.
 **Production vs. testing:**
 - **Production (Steam):** set `apiKey` (+ `gameName`/`gameVersion`); leave `runWithoutLauncher =
   false` (implicit). Ensure Steam is initialized before `Activate`.
-- **Local testing / CI without Steam:** `runWithoutLauncher = true` with a Steam id + beta branch —
-  supplied by the dev build's `LudeoConfig.ini` (below), **not** baked into the asset. Use `autoStartInLudeo`/`ludeoToAutoStart` to force the play/restore flow on launch for
+- **Debugging without Steam:** `runWithoutLauncher = true`, with `launcherUserId` (a Steam id) and
+  `betaVersion` (the target environment's Beta Version Name) — a required pair, supplied by the dev build's
+  `LudeoConfig.ini` (below), **not** baked into the asset. Use `autoStartInLudeo`/`ludeoToAutoStart` to force the play/restore flow on launch for
   iterating on restoration. **Never ship these on.** Headless/CI builds have no Steam client, so
   default them to explicit (or skip Ludeo activation) — otherwise they all fail with `InvalidAuth`.
 - **Ludeo Cloud:** the cloud infrastructure handles environment selection and authentication — you
@@ -222,7 +223,9 @@ turns the reader on.
 3. **Leave the asset in cloud posture.** With the reader in place, `LudeoSettings.asset` keeps
    `launcherUserId` **empty** in the project; the tester identity lives only in the dev build's ini.
 4. **Seed `LudeoConfig.ini` with the *actual* values — never placeholders.** Ask the user for the tester's
-   Steam id (17 digits) and the beta branch / beta code of their Studio Lab environment, and write them:
+   Steam id (17 digits) and which environment to debug against, and copy that environment's beta name as Matching step 1 in [`ludeo-studio-mcp.md`](../../ludeo-studio-mcp.md) defines it
+   (never `{}`, `null` or empty; an unknown name means running step 1 first) from `KYG.md` → Ludeo platform into `betaBranch` (required alongside the Steam id in no-launcher mode; a
+   named QA environment, never Production). Write them:
    ```ini
    # Ludeo configuration for this build. Read once at launch, before the SDK starts.
    # 'key = value', '#' starts a comment. Delete the file to use the built-in values.
@@ -233,7 +236,7 @@ turns the reader on.
 
    # Both are REQUIRED when runWithoutLauncher = true; the sign-in is refused if either is missing.
    steamUser  = 7656119XXXXXXXXXX
-   betaBranch = <beta code from Studio Lab>
+   betaBranch = <the target environment's beta name>   # never "public", never Production
 
    # Optional: platformUrl, apiKey, gameVersion, ludeoToAutoStart (a Ludeo id to replay on launch).
    ```

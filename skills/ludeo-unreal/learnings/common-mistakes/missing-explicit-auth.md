@@ -11,14 +11,14 @@ The SDK's implicit authentication requires `SteamAPI_Init()` to have been called
 
 The fix is explicit authentication via `FLudeoSessionSteamAuthenticationData` with the user's Steam ID. The Steam ID should be resolved the same way as the API key: command line (`-SteamAuthID=`) → env var (`STEAM_AUTH_ID`) → config (`DefaultGame.ini`).
 
-**Rule:** The `ActivateSession()` skeleton must include explicit auth resolution code. Do not rely on implicit auth working — always provide a fallback path via explicit auth when a Steam ID is available.
+**Rule:** The `ActivateSession()` skeleton must include explicit auth resolution code, so a debugging run without Steam can still activate when a Steam ID is supplied. Implicit auth is what shipped builds and creators run on; explicit auth is a debugging path, removed before shipping (phase 07 gate).
 
 ```cpp
 FString SteamAuthID;
 if (!FParse::Value(FCommandLine::Get(), TEXT("-SteamAuthID="), SteamAuthID))
     SteamAuthID = FPlatformMisc::GetEnvironmentVariable(TEXT("STEAM_AUTH_ID"));
 if (SteamAuthID.IsEmpty())
-    GConfig->GetString(TEXT("/Script/LudeoUESDK.LudeoSettings"), TEXT("SteamAuthID"), SteamAuthID, GGameIni);
+    GConfig->GetString(TEXT("Ludeo"), TEXT("SteamAuthID"), SteamAuthID, GGameIni);
 
 if (!SteamAuthID.IsEmpty())
 {
