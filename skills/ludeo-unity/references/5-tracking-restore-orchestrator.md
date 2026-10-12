@@ -37,6 +37,8 @@ for each widened wave.
       census + wave plan** (`## Wave Rollout`, `## Object Type Census`, `## Spawn/Own Pattern Summary`) and
       the user **approved** it (type coverage, load-bearing flags, wave order, Wave 1 = restorable spine +
       must-have set). The **per-entity deep detail is NOT in it yet** — task 0 appends it per wave.
+- [ ] **A timer goal on the debug environment**, so each wave can cut a test Ludeo — `create_goal_or_constraint` in
+      [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md).
 - [ ] The task briefs are present in `references/` (see §3): `9a` (deep-scope), `9`, `10`, `11`, `12`.
 
 ## 3. Steps (the orchestration)
