@@ -28,6 +28,9 @@ build has sent it: see `studio-lab-lists-an-action-only-after-a-build-sent-it`),
 > Global Triggers, goals, constraints and scores in your environment and read each one back. (Recommended.)
 > Otherwise here is the list to create by hand: ..."
 
+Goals and constraints are never on that by-hand list: the agent creates them, with the tools in
+`references/ludeo-studio-mcp.md` or with browser control.
+
 Ask again when a later batch adds actions (a boss event, a streak), and before the first cloud test.
 
 ## How to do it without mistakes
