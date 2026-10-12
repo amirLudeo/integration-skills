@@ -20,7 +20,7 @@ Every Ludeo session requires authentication. Two paths exist:
 - **Implicit:** Steam is initialized. SDK reads the Steam user automatically.
 - **Explicit:** SteamAuthID provided via CLI/env/config. Required when Steam is NOT initialized.
 
-"This game doesn't use Steam" is not a reason to skip auth. It's a reason to USE explicit auth. The Section 5.3 resolution chain (CLI → env → config) exists precisely for this case.
+"This game doesn't use Steam" is not a reason to skip auth. While debugging, it's a reason to use explicit auth — the Section 5.3 resolution chain (CLI → env → config) exists for that. Explicit auth is removed before shipping (phase 07 gate); shipped builds authenticate implicitly through Steam, and local creation for a non-Steam title isn't supported yet, so raise that with the Ludeo integrations team rather than shipping a Steam ID.
 
 ## The Second Mistake
 

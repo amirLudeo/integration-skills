@@ -17,7 +17,7 @@ The agent then claimed Stage 2 was runtime-verified despite activation failing, 
 
 ## Why It's Wrong
 
-The Ludeo SDK uses `SteamAuthID` as an **explicit identity mechanism** for all non-Cloud, non-GFN builds. It does NOT require the game to have Steam integrated. "Not a Steam game" is irrelevant — the question is whether the SDK needs explicit auth to activate, and the answer is always yes for local/packaged builds.
+The Ludeo SDK uses `SteamAuthID` as an **explicit identity mechanism** for all non-Cloud, non-GFN builds. It does NOT require the game to have Steam integrated. "Not a Steam game" is irrelevant to whether the auth block exists — it always does. What changes is the path: a run with a live Steam client authenticates implicitly (what shipped builds and creators use), and a debugging run without one needs an explicit `SteamAuthID`, which is removed before shipping (phase 07 gate).
 
 The Phase 2 reference file §5.3 explicitly says: "Auth type detection is presence-based — do NOT gate Steam auth on whether the game uses Steam. The presence of a SteamAuthID value (from any source) IS the signal to use Steam auth."
 
