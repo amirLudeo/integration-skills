@@ -1770,6 +1770,8 @@ Blindly zeroing both is a silent hole: the detector is **transition**-based and 
 
 The **non-ludeoable area** trigger pair (`StartNoneLudeable`/`StopNoneLudeable`) is emitted from the area's own enter/exit sites, with the same start/end pairing discipline — not from this pause detector.
 
+**Then create the triggers.** Once a run has sent both events of a pair, create its Global Triggers with the tools in [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md) when they're in your tool list; otherwise §5.9.1's hand-off.
+
 #### 5.9.4 SDK Pause/Resume Requests (Player Flow Only)
 
 The SDK asks the game to pause when the player opens the Ludeo overlay mid-session (ESC, which the SDK intercepts) or when the platform stops/expires the Ludeo timer. These callbacks are already registered in the Subsystem — implement the handlers.
@@ -2564,7 +2566,7 @@ These are errors from prior integration attempts. The skill should actively prev
 ### 8.29 Action Names Not Matching the Studio Lab Trigger Mapping
 
 **Mistake:** Sending action names the platform's **Global Triggers** config doesn't map. These strings are a convention (`StartNoneLudeable`/`StopNoneLudeable`, `PauseLudeo`/`ResumeLudeo`), not SDK constants — an unmapped string is silently ignored by the backend, and so is a mapped one whose flow branch never fires.
-**Prevention:** Use the conventional names, branch on `bIsPlayerFlow` only if the game's Studio Lab config actually distinguishes per flow (§5.9.1), and hand the integrator an explicit mapping action item. Verify in the log that the emitted string matches what's configured.
+**Prevention:** Use the conventional names, branch on `bIsPlayerFlow` only if the game's Studio Lab config actually distinguishes per flow (§5.9.1), and create the mapping per §5.9.3. Verify in the log that the emitted string matches what's configured.
 
 ### 8.30 Freezing on a Pause Request Without Sending the Trigger
 
