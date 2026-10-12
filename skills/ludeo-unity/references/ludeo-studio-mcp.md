@@ -1,7 +1,7 @@
 # Ludeo Studio MCP (`ludeo-mcp`)
 
 Automates the **Studio Lab** platform work this skill otherwise hands to the user. Phase 1 installs it;
-every row below still has a manual fallback, so an absent server never blocks a phase.
+every row below still has a fallback, so an absent server never blocks a phase.
 
 > **The tool set is growing.** This table is the reviewed set; the rules at the bottom cover the rest.
 
@@ -27,6 +27,7 @@ Record the deployment you chose in `KYG.md` → **Ludeo platform** so this doesn
 
 | Touchpoint | Tool | R/W | Assert when | Manual fallback |
 | --- | --- | --- | --- | --- |
+| **Every phase** — start and finish | `report_state` | Telemetry | Per **Reporting progress** (below), from the top-level agent only. | Skip it, and say nothing. |
 | **Phase 1** — before any other studio call | `list_game_environments` | R | **Before every write, and at every gate that names an environment** — reads are free, and the recorded list is a cache, not the truth. Takes a required `versionId` — the **Game ID** from Studio Lab → **Game Options → Info** (the game **version** uuid, not the backend `gameId`), which only the user has, so **ask for that first**. Record **every** environment it returns — name, id, current Beta Version Name — in `KYG.md` → **Ludeo platform**; update the record when a re-read differs, and take `old` in a write confirmation from the fresh read, using the environment's beta name as Matching step 1 defines it. **An integration can target more than one environment** (QA while you iterate, production at ship), so this resolves the *set*: the target is picked per write. | Ask the user which environments exist and what Beta Version Name each carries; record them the same way. After that, with no tool, use the recorded list and confirm only the target. |
 | **Phase 1 · Step 2** — where `betaVersion` is set on `LudeoSettings` | `set_beta_version_name` | **W** | **Only when Matching a branch to an environment (below) says to write** — the target has no name and is recorded as not the default. Re-check whenever the branch or the target changes. Names are unique within one Game ID, so a name another environment uses is rejected. | Ask the user to set `<name>` on `<environment>` in Studio Lab; if `list_game_environments` is listed, re-read to confirm it landed; on a mismatch, show the difference and ask — don't pass the gate on it. |
 | **Phase 1** — once the environments are known | `invite_user_to_env` **(not on production yet — fall back until it appears in your tool list)** | **W** | **On demand, per environment.** Until the game is live on Ludeo, only people in an environment can capture there — anyone else's attempt fails silently, the integrator included. **Membership is per environment**: an invite to one grants nothing in another, and no tool reports membership, so the integrator's own is always a question. Ask in phase 1 who else needs to make Ludeos, and in which environment; invites go by email, and accepting one grants whichever Ludeo account is signed in at the time — so the invitee accepts it signed in to Creator Lab with the Steam account they'll capture with, or the access lands on an account the game never uses; ask again when new people appear or the target environment changes. | Ask the user to invite them to `<environment>` in Studio Lab. |
@@ -53,8 +54,30 @@ Never write `public` — that's Steam's label for the default branch, which send
 The **Assert when** column is a condition to hold, not a call count. Cadence follows from it: a tool whose
 invariant depends on local state is re-called whenever that state changes.
 
+**Reporting progress.** `report_state` sends only the Game ID (`versionId`, from `KYG.md` → **Ludeo
+platform**, never from `list_my_games`), a phase and `started`/`finished`.
+
+- **Tell the user once per integration.** Before your first report, unless `KYG.md` → **Ludeo platform** says
+  it's done, say *"I'll also report to Ludeo which phase we're in, against this Game ID — nothing from your
+  project."* and record it there.
+- **Report the phase you're in:** `started` as its work begins (a resumed session sends it again), `finished`
+  when the user confirms it's done — unless the table says otherwise. No Game ID yet → don't report. Never
+  suppress a repeat.
+
+| Phase | `phase` |
+| --- | --- |
+| 1 | `sdk_set_up` — `started` once the Game ID is recorded |
+| 2, 4 | `mapping_code` |
+| 3 | `wiring_lifecycle` |
+| 5, each wave | `tracking_objects` from task 0 to gate 1, then `restoring_objects` from task 2 to gate 4 |
+| 6 | `wiring_actions` |
+| 7 | `uploading_build` |
+| 8 | a wave it adds reports like phase 5's, a re-upload like phase 7; once nothing is left, after any re-upload, `completed` — `started` then `finished`, back to back |
+
 ## Rules
 
+- **`report_state` is exempt from every rule below except the tool-list gate:** no confirmation, narration,
+  sign-in prompt or hand-over; ignore its result and errors; never retry. Nothing else is exempt.
 - **Reads are free.** Call one instead of asking the user a question the platform can answer.
 - **Writes are outward-facing.** A write changes what everyone in that environment sees, and an invite
   reaches a real person. Before any write tool, show what it will change — `environment · old → new`, and for a beta name say who the old value routed (anyone on that branch stops reaching this environment),
