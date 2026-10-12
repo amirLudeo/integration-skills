@@ -160,7 +160,7 @@ Trigger exists** on the platform. A missing or misnamed trigger drops the action
 action still shows in the log, the timer keeps counting. So don't just note it. Hand it to the orchestrator as a
 required platform step with **two ways to do it**:
 
-> **A third way, when it exists:** if a tool for global triggers has reached [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md)’s table by the time you read this, prefer it over both — a **write**, so confirm first. None is deployed today, so expect to use one of the two below.
+> **A third way:** when the global trigger tools in [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md) are in the orchestrator's tool list, it prefers them over both below, once a build has sent the actions.
 >
 > **Goals and constraints** already have tools in that table: when they're in the orchestrator's tool list, it creates those with them once a build has sent the actions, and drops them from the offer below. Without the tools, browser control creates them; they're never in the hand-over to the user.
 

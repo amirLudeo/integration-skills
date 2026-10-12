@@ -149,9 +149,9 @@ The orchestrator confirms **all** of these before advancing to phase 7:
 - [ ] **The Global Triggers exist** — Pause/Resume on `PauseLudeo`/`ResumeLudeo`, and Non-Ludeoable Area on
       `StartNoneLudeable`/`StopNoneLudeable` (Studio Lab → environment → *Global Triggers*). Nothing reaches the
       backend until they do, so "action in the log" is not proof the timer stopped. Once the recording run has
-      sent the actions, **offer to create them with browser control (recommended)**, together with the goals,
-      constraints and scores for the gameplay actions (goals and constraints with the tools in
-      [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md) when they're in your tool list, browser control otherwise — never handed to the user); otherwise hand over the verbatim instruction (task 2
+      sent the actions, create them, and the goals and constraints for the gameplay actions, with the tools in
+      [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md) when they're in your tool list; for the rest, scores included,
+      **offer browser control (recommended)**; otherwise, and always on Production, hand over the verbatim instruction — never for goals and constraints, which browser control creates without the tools (task 2
       Step 6, `learnings/architecture/offer-to-set-up-studio-lab-with-browser-control.md`). Ask again whenever a
       later batch adds actions.
 - [ ] Player-scoped actions guarded on the player as actor/subject; global actions fired unguarded.
