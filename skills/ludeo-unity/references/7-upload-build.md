@@ -304,6 +304,56 @@ every Ludeo shows **all** its check lines and none is `WRONG`; a Ludeo with no c
 failure, not a pass. A failure here goes back to its wave's fix loop, and the build is rebuilt and
 re-checked from Step 2.
 
+### Step 4.6: Test the implicit sign-in on the studio's own release build (Steam games) — automatic
+There are three ways a build signs in to Ludeo, and only one of them is otherwise never exercised:
+
+| Where | Sign-in | Tested by |
+| --- | --- | --- |
+| Dev builds and every harness run | **explicit**: a tester's Steam id and beta branch | every gate |
+| The Ludeo cloud | the platform's own cloud token | the cloud play after upload |
+| **The studio's shipped Steam game**, where creators record moments | **implicit**: the SDK reads the signed-in Steam user and the game's Steam branch | **this step** |
+
+If implicit sign-in fails, nobody can record a Ludeo in the real game, and no earlier step would show
+it. So the agent tests it itself, on every release candidate, before upload and before phase 8 finalizes.
+
+**Applies when** the shipped game runs on Steam (KYG auth = Steam). Otherwise skip it and record
+"implicit sign-in test: not applicable (not a Steam game)" in the tracker.
+
+1. **Build the studio's normal release configuration**, through their own pipeline: no Development
+   flag, no harness, no cloud define. Build it into a test folder outside the upload folder
+   (`<builds>/implicit-test`), and delete that folder afterwards. Ask for it together with Step 1's question
+   ("…and one normal release build, to test Steam sign-in").
+2. **Check the preconditions yourself**:
+   - **Steam is running and signed in.** A `steam.exe` process, and a non-zero `ActiveUser` under
+     `HKCU\Software\Valve\Steam\ActiveProcess`.
+   - **The game is on the right Steam branch.** The beta branch of the Ludeo environment (the one the
+     dev build signs in with) must equal `BetaKey` in
+     `<Steam library>\steamapps\appmanifest_<appid>.acf`; an empty value means the default branch.
+   - **This build signs in implicitly.** The Step 2 gate line for this build shows
+     `runWithoutLauncher=False`, the folder holds no dev config file, and the launcher passes no
+     `-ludeoAuthID` / `-ludeoBetaBranch` and clears `LUDEO_AUTH_ID` / `LUDEO_BETA_BRANCH` from the
+     environment it starts the game with.
+   - If Steam isn't running or signed in, or the branch differs, ask once: *"Please start Steam, sign in
+     with an account that owns the game, and set the game's beta branch to `<branch>`. I'll take it from
+     there."* Then continue automatically.
+3. **Launch it in place.** Launched outside Steam, a Steam game asks Steam to relaunch it
+   (`SteamAPI.RestartAppIfNecessary`), which would start the Steam-installed copy instead of this build. So
+   put `steam_appid.txt` (the app id) in the **test folder only**, never in the upload folder. Launch the
+   exe windowed with `-logFile <abs>`, wait up to about 90 s for the `Activate` result in the log, and
+   close it with `CloseMainWindow`, stopping only the process you started.
+4. **Judge it.**
+   - **Pass:** `Activate` returns `Success`.
+   - `InvalidAuth`: Steam wasn't initialized before `Activate`
+     (`learnings/common-mistakes/is-steam-running-is-not-steam-initialized.md`).
+   - `Environment not found` on `users/auth`: the Steam branch doesn't match the environment
+     (`learnings/common-mistakes/environment-not-found-is-the-beta-code-not-the-user.md`).
+   - **A failure blocks phase 8's finalize, not the cloud upload,** because the cloud signs in with its own
+     token. Fix it, rebuild, and re-run this step. Tell the integrator if you upload in the meantime.
+5. **Record it:** the result, the log number and the branch tested, in the tracker and in `HANDOFF.md`.
+
+(No integration has run this step yet. Capture a learning on the first run, especially the exact log
+lines that show the implicit path.)
+
 ### Step 5: Locate the CLI and authenticate
 1. `ludeo --help` — confirm the CLI is reachable and learn the current command set (the CLI evolves;
    **trust `--help` over any commands quoted here**). If not found, ask the user to install it / give the path.
@@ -426,7 +476,9 @@ Confirm status **`success`** and that `game-version`, `sdk-version`, build type,
 
 ## 4. Questions to ask the human
 
-- **Building the cloud version** through a second configuration of their pipeline — ask once (Step 1).
+- **Building the cloud version** through a second configuration of their pipeline, plus one normal release
+  build for the implicit sign-in test — ask once (Steps 1 and 4.6).
+- **Steam** — only if it isn't running and signed in on the environment's branch when Step 4.6 needs it.
 - **Build folder path**, **Game Version ID**, **game version**, **access token** — if not provided.
 - **SDK version** — always **confirm with the user**; the package manifest can lie (builds use swapped SDKs).
 - **Changes description** — if it can't be inferred from context.
@@ -496,6 +548,9 @@ Confirm status **`success`** and that `game-version`, `sdk-version`, build type,
       **confirmed Ludeos replayed on this build** before the upload (Step 4.5).
 - [ ] `run.bat` launched from another working directory stayed up ~30 s with a clean log (Step 4), and no
       test-only assembly or `*_DoNotShip` folder is in the upload folder (Step 3).
+- [ ] **Implicit sign-in tested** on the studio's own release build (Step 4.6): `Activate` `Success` with
+      Steam signed in on the environment's branch and no explicit id, or recorded as not applicable (not a
+      Steam game). A failure is fixed before phase 8 finalizes.
 - [ ] `--sdk-version` **confirmed with the user** (not trusted from the manifest).
 - [ ] `--changes-description` non-empty (inferred or user-supplied) — empty only if the user chose so.
 - [ ] `--dry-run` reviewed (file list + resolved flags) and confirmed with the user.

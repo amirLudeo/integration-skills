@@ -183,7 +183,12 @@ When the user confirms nothing material remains:
    only into Development builds), the dev-build and cloud-build scripts, and, in case C, the
    `LudeoProjectDump.cs` Editor script. None of them ship in the cloud build. Say they stay so the next
    integration round can re-run the regression set, unless the integrator wants them removed.
-5. Declare the integration complete **at the agreed scope**, naming what was and wasn't covered.
+5. **Test the implicit sign-in on the final release candidate (automatic, Steam games).** Run phase 7
+   Step 4.6 (`7-upload-build.md`) yourself on a fresh build of the studio's normal release configuration.
+   Re-run it even if phase 7 already passed, whenever game or integration code changed since that run. Only
+   a pass (or "not applicable: not a Steam game") lets the integration be finalized. Write the result, with
+   its log number and the Steam branch tested, into the TDD completion section.
+6. Declare the integration complete **at the agreed scope**, naming what was and wasn't covered.
 
 ## 4. Questions to ask the human
 - **Step 2 (the core one):** which recommended gaps to expand now vs. finalize at current scope — expansion
@@ -266,6 +271,8 @@ TDD completion section:
       when the build changed, with re-recorded captures noted.
 - [ ] _(Case B, if phase 1 installed the Pipeline package)_ the integrator decided whether it
       stays; if removed, the removal is committed and the project still compiles.
+- [ ] **Implicit sign-in passed on the final release candidate** (phase 7 Step 4.6, run by the agent;
+      re-run if code changed since phase 7), or recorded as not applicable (not a Steam game).
 - [ ] Integration declared complete **at the user-agreed scope** — nothing stopped silently.
 
 ## 8. Common Mistakes
