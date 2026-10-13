@@ -40,8 +40,8 @@ must happen *after* the apply — a rebuilt moment needs real frames before it c
 
 A freeze arbiter that saves "the current timeScale" to restore later will save **0** if it is
 entered while the game is already hard-paused, then faithfully restore 0 and leave the replay
-frozen with nothing left to release it. Observed when the Ludeo gallery was reached through the
-game's own pause menu, which is the normal way in:
+frozen with nothing left to release it. Observed when a Ludeo was selected while the game sat
+hard-paused in its own pause menu:
 
 ```
 RoomReady -> Begin (restoring=True, timeScale=0)

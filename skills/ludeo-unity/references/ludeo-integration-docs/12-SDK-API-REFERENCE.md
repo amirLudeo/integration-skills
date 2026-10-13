@@ -109,7 +109,7 @@ Get it from `SessionManager.CreateSession`. **Subscribe to the events below (wit
 | Activate | `void Activate(Action<LudeoSessionActivateCallbackData> cb, LudeoSessionSetLocalizationParameters loc = default)` · `Task<…> ActivateAsync(loc = default)` |
 | Open room | `void OpenRoom(LudeoSessionOpenRoomParameters data, Action<LudeoOpenRoomCallbackData> cb)` · `Task<…> OpenRoomAsync(data)` |
 | Get ludeo | `void GetLudeo(Guid ludeoId, Action<LudeoGetLudeoCallbackData> cb)` · `Task<…> GetLudeoAsync(ludeoId)` |
-| Open gallery | `void OpenGallery()` |
+| Open gallery | `void OpenGallery()` — **deprecated: do not call it, and do not add a button for it.** The game builds no Ludeo picker; selection arrives as `LudeoSelected`. |
 | Set localization | `void SetLocalization(LudeoSessionSetLocalizationParameters loc)` |
 
 **Events** (subscribe with `+=` after `CreateSession`, before `Activate`; unsubscribe with `-=`):

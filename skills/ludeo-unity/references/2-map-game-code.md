@@ -210,7 +210,7 @@ Decide **three orthogonal things** about how this game models a session:
 
 0. **Launch model** — does a capture session start through a **main menu / level-select**, or does the
    game **boot straight into gameplay** (the first `EditorBuildSettings` scene is itself a gameplay
-   scene that auto-starts a run)? And is a Ludeo entered via an **in-game gallery** or **launched
+   scene that auto-starts a run)? And is a Ludeo **selected mid-run** (after `Activate`) or **launched
    preselected**? **KYG (phase 1) is authoritative** — this is a product choice; here you only
    **cross-check it against the code** (first-scene-is-gameplay? is there a menu scene? a forced
    auto-start at boot?) and record `launch_model` in §6. If either axis is boot-straight / preselected
@@ -249,7 +249,7 @@ neither — and any of those can be boot-straight or menu-gated.
      ```json
      "launch_model": {
        "creator": "menu-gated | boot-straight",
-       "player": "gallery | preselected | both",
+       "player": "mid-run | preselected | both",
        "first_scene_is_gameplay": true,
        "menu_scene": "<scene or null>",
        "readiness_gate_required": true,
