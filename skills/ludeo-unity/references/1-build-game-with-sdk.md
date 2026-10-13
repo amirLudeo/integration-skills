@@ -153,11 +153,11 @@ evidence where it comes from code; mark unknowns `?`; **ask** the human-only ite
    launching a Ludeo; typical length; the player actions that matter most).
 2. **Launch model ⭐** — a **product choice** (not inferable from code alone) that selects the startup
    flow the integration builds. Two **independent** axes — ask both; a game can be boot-straight for
-   creation but gallery-based for replay, or vice-versa:
+   creation but take Ludeos mid-run, or vice-versa:
    - **Creator launch** — does a normal (capture) session start through a **main menu / level-select**,
      or does the game **boot straight into gameplay** (first scene auto-starts a run, no menu between)?
-   - **Player (Ludeo) launch** — does a player enter a replay via an **in-game gallery**
-     (`LudeoSelected` mid-app), or is the app **launched preselected** and boots straight into the
+   - **Player (Ludeo) launch** — is a Ludeo **selected mid-run** (`LudeoSelected` after `Activate`,
+     with the app already running), or is the app **launched preselected** and boots straight into the
      replay (`isLudeoSelected` at `Activate`; the `autoStartInLudeo` dev flag in Step 2 is the test
      harness for this), or **both**?
 
@@ -285,8 +285,8 @@ Only what can't be inferred from code:
   and flagging the boss as load-bearing in the census. Code-level detail is confirmed later; the human
   knows the shape of the fight now.
 - **Launch model** (KYG §) — menu-gated vs. boot-straight-to-gameplay for a capture session; and
-  whether a Ludeo is entered via an in-game gallery or launched preselected. A product choice — ask;
-  don't infer it solely from the current first scene.
+  whether a Ludeo is selected mid-run (`LudeoSelected` after `Activate`) or launched preselected. A
+  product choice — ask; don't infer it solely from the current first scene.
 - Anything the save-system greps leave ambiguous (does the game persist *gameplay* state or only
   settings/scores; full snapshot vs checkpoint).
 
@@ -342,7 +342,7 @@ Context files (read first; relative to this workflow file):
 
 ## Launch model
 - Creator launch: menu-gated | boot-straight-to-gameplay
-- Player (Ludeo) launch: in-game gallery | launched preselected (autoStartInLudeo) | both
+- Player (Ludeo) launch: selected mid-run (`LudeoSelected` after Activate) | launched preselected (autoStartInLudeo) | both
 - SDK-readiness gate required? yes (boot-straight / preselected / fast-skippable menu) | no (slow click-through menu)
 - Notes: <existing splash/loading screen the gate's "ready" cover can reuse; any forced auto-start at boot>
 
