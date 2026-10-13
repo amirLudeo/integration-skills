@@ -7,7 +7,7 @@ question: "Are the game's actions, Pause/Resume and Non-Ludeoable spans wired an
 sanitized: true
 ---
 
-# Offer to set up Studio Lab yourself with browser control (recommended) once the actions have been sent
+# Set up Studio Lab yourself with browser control once the actions have been sent
 
 The skill hands the platform side over as a verbatim instruction: "create the Global Triggers, I can't do this".
 That was true without a browser. With browser control the agent can do all of it, and it is the step integrators
@@ -19,19 +19,14 @@ In one integration the agent created, in the integrator's signed-in Studio Lab s
 each boss type), the constraints, and a score per action including negative ones (a dash, a death). Every item was
 read back from the page after saving and written into the plan.
 
-## When to prompt
+## When to do it
 
 After the phase-6 recording run has **sent every action at least once** (Studio Lab lists an event only after a
-build has sent it: see `studio-lab-lists-an-action-only-after-a-build-sent-it`), ask:
+build has sent it: see `studio-lab-lists-an-action-only-after-a-build-sent-it`), create the Global Triggers, goals,
+constraints and scores in the integrator's signed-in session, read each one back, and tell the user what you made.
+Only with no browser tool, hand over the list to create by hand.
 
-> "The actions reach the backend now. Want me to set up Studio Lab for you with browser control? I'd create the
-> Global Triggers, goals, constraints and scores in your environment and read each one back. (Recommended.)
-> Otherwise here is the list to create by hand: ..."
-
-Goals and constraints are never on that by-hand list: the agent creates them, with the tools in
-`references/ludeo-studio-mcp.md` or with browser control.
-
-Ask again when a later batch adds actions (a boss event, a streak), and before the first cloud test.
+Do it again when a later batch adds actions (a boss event, a streak), and before the first cloud test.
 
 ## How to do it without mistakes
 

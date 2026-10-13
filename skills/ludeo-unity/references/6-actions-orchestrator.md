@@ -150,10 +150,11 @@ The orchestrator confirms **all** of these before advancing to phase 7:
       `StartNoneLudeable`/`StopNoneLudeable` (Studio Lab → environment → *Global Triggers*). Nothing reaches the
       backend until they do, so "action in the log" is not proof the timer stopped. Once the recording run has
       sent the actions, create them, and the goals and constraints for the gameplay actions, with the tools in
-      [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md) when they're in your tool list; for the rest, scores included,
-      **offer browser control (recommended)**; otherwise, and always on Production, hand over the verbatim instruction — never for goals and constraints, which browser control creates without the tools (task 2
-      Step 6, `learnings/architecture/offer-to-set-up-studio-lab-with-browser-control.md`). Ask again whenever a
-      later batch adds actions.
+      [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md) when they're in your tool list, otherwise with browser control
+      (scores too — no tool covers them). Only with no browser tool, hand over the verbatim instruction.
+      On Production, hand over only the triggers and scores; no goals or constraints
+      are made there (task 2 Step 6, `learnings/architecture/offer-to-set-up-studio-lab-with-browser-control.md`).
+      Again whenever a later batch adds actions.
 - [ ] Player-scoped actions guarded on the player as actor/subject; global actions fired unguarded.
 - [ ] No `#if` guard at call sites (CR-001 runtime); all calls route through the `[Layer]` façade.
 
