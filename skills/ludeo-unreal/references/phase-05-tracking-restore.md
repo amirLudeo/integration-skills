@@ -662,7 +662,7 @@ is **detection and action reporting** — the component must notice the pause an
    }
    ```
 
-   The action has no effect until the integrator maps it as a **Pause/Resume Global Trigger** in Studio Lab —
+   The action has no effect until it's mapped to a **Pause/Resume Global Trigger** (phase 03 §5.9.3 creates it) —
    an unmapped string is silently ignored, so seeing `PauseLudeo` in the log is not proof the timer stopped.
 
    Emit only while a gameplay session is active — the `!bGameplayActive` bail is deliberate. Pauses outside a
