@@ -43,6 +43,7 @@ actually restores entity positions.
 - `.ludeo/integration.json` with Phase 04 complete
 - Plugin scaffold from Phase 03 (subsystem + component, ActivateSession working)
 - Active room with at least one player added (Phase 03 lifecycle)
+- A timer goal on the debug environment, so each wave can cut a test Ludeo (`create_goal_or_constraint` in `ludeo-studio-mcp.md`)
 
 **From CODE_MAP (`.ludeo/code-map.json`):**
 - `entity_types` — all actor/pawn/object classes identified in Phase 02
