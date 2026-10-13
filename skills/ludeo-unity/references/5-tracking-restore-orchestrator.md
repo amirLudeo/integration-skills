@@ -96,6 +96,8 @@ for N in waves:                                  # OUTER LOOP
     -> ask the human: "wave N restores — widen to wave N+1?"        # confirm-before-widen
 ```
 
+Report progress per wave ([`ludeo-studio-mcp.md`](ludeo-studio-mcp.md) → Reporting progress).
+
 **Wave 1 runs the full pipeline** (it builds the one-time restore flow). **Waves ≥ 2 are data-only**
 (`deep-scope → capture → restore-plan → reconstruct`) and **skip task 3** — the flow already exists; only
 the tracked set, the capture writers, and the `ApplyRestoredState()` data read-back grow. **Phase 6
