@@ -158,19 +158,12 @@ void ResumeGame() { /* … existing unfreeze … */ /* if span closed, return */
 Both pairs are ordinary `SendAction` strings — **not SDK constants**. They do nothing until a matching **Global
 Trigger exists** on the platform. A missing or misnamed trigger drops the action **silently**: no error, the
 action still shows in the log, the timer keeps counting. So don't just note it. Hand it to the orchestrator as a
-required platform step with **two ways to do it**:
+required platform step:
 
-> **A third way:** when the global trigger tools in [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md) are in the orchestrator's tool list, it prefers them over both below, once a build has sent the actions.
->
-> **Goals and constraints** already have tools in that table: when they're in the orchestrator's tool list, it creates those with them once a build has sent the actions, and drops them from the browser pass below. Without the tools, browser control creates them.
-
-1. **The agent does it with browser control.** If the session has a browser tool, the orchestrator creates the
-   Global Triggers (and the goals, constraints and scores for the gameplay actions) once a build has sent these
-   actions (Studio Lab lists an event only after that), reads each one back, and tells the user what it made.
-   The integrator signs in (ask them to if they aren't); the agent never types credentials. Follow
-   `learnings/architecture/offer-to-set-up-studio-lab-with-browser-control.md` (confirm the environment, pick
-   events by clicking the option, read the form back before saving).
-2. **By hand** — only if there is no browser tool, give the instruction verbatim:
+1. **With the tools.** Once a build has sent the actions (Studio Lab lists an event only after that), the
+   orchestrator creates the triggers, and the goals and constraints for the gameplay actions, with the tools in
+   [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md).
+2. **By hand** — only without the tools, give the instruction verbatim:
    > *"**Needed on the Ludeo platform.** In Studio Lab → your environment → Global Triggers,
    > create (or confirm) a **Pause/Resume** trigger starting on `PauseLudeo` and ending on `ResumeLudeo`, and a
    > **Non-Ludeoable Area** trigger starting on `StartNoneLudeable` and ending on `StopNoneLudeable`. Names must

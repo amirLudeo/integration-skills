@@ -61,8 +61,7 @@ the target environment. This is the final phase — when it passes, the build is
       [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md), or **ask the user to confirm** — the cloud run
       is the first place the overlay pause happens, and without the trigger it won't stop the objective timer.
       The failure is silent (phase 6 · task 2 Step 6). If they aren't there yet, or new actions arrived since,
-      create them with those tools, otherwise with browser control (goals and scores too)
-      (`learnings/architecture/offer-to-set-up-studio-lab-with-browser-control.md`). On Production, neither: the user creates the triggers by hand.
+      create them with those tools. On Production, the user creates the triggers by hand.
 - [ ] [`ludeo-integration-docs/unity/READING-UNITY-LOGS.md`](ludeo-integration-docs/unity/READING-UNITY-LOGS.md)
       — the agent can't see the Console; the release-build gate (Step 2) reads `Editor.log`.
 
