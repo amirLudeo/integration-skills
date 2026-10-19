@@ -8,12 +8,13 @@ waive it.
 
 ## Set up once, before wave 1's task-1 gate
 
-1. **The login.** Replay by Ludeo id runs only with explicit login, so the build's `LudeoSettings` holds it:
-   `runWithoutLauncher = true`, `launcherUserId`, `betaVersion`. Keep it there, not in the ini.
-2. **The dev override.** The `LUDEO_DEV` shim
-   ([`UPM-INSTALL-AND-DEFINES.md`](ludeo-integration-docs/unity/UPM-INSTALL-AND-DEFINES.md) → *Dev/QA
-   runtime overrides*) reads `ludeo-dev.ini`, next to the exe: `ludeoLogLevel = Log` always (at the default
-   `Error`, none of the SDK lines below are logged), plus the per-run keys below.
+1. **The login.** Replay by Ludeo id runs only with explicit login: `runWithoutLauncher = true` plus the
+   tester's Steam id and the environment's beta name, in the dev build's `LudeoConfig.ini` (phase 1), so the
+   shipped `LudeoSettings` asset carries none.
+2. **The dev config.** `LudeoConfig.ini` next to the exe, read before `LudeoManager.Initialize()`
+   ([`UPM-INSTALL-AND-DEFINES.md`](ludeo-integration-docs/unity/UPM-INSTALL-AND-DEFINES.md), its
+   `LudeoConfig.ini` section): `ludeoLogLevel = Log` always (at the default `Error`, none of the SDK lines
+   below are logged), plus the per-run keys below, which your dev hook reads from the same file.
 3. **The way in.** A `LUDEO_DEV` hook, written by a subagent like any task's code, that runs once the first
    scene has loaded. It sets `Application.runInBackground = true` (else the game pauses when its window
    isn't in front), enters the ini's `devEnter` through the game's own calls (what its menus call, its

@@ -42,7 +42,7 @@ the target environment. This is the final phase — when it passes, the build is
       confirmed Ludeo, put the folder back. First-time tutorials and popups the integrator's own save has long
       dismissed show only here, and every cloud viewer sees them.
 - [ ] **No dev files in the upload folder.** `ludeo builds upload` sends every file in the folder and has no
-      exclude option: move `ludeo-dev.ini` and any other local config out before the dry run, and put them back after.
+      exclude option: move `LudeoConfig.ini` and any other local config out before the dry run, and put them back after.
 - [ ] A **release player build folder** exists — **the user triggers the build in the Unity Editor**
       (current platform; Ludeo capture is Windows-desktop). The agent does **not** drive the Editor build.
 - [ ] The **`validate-build`** user-level skill (the self-contained gate; also writes `run.bat`).
