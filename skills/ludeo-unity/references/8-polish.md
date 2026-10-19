@@ -171,7 +171,9 @@ When the user confirms nothing material remains:
    new capture schema also invalidates prior cloud captures (`06 §6`). Tell the user to re-run **phase 7**
    (`7-upload-build.md`) to publish the widened build (a **minor** attached to the existing major), and that
    test captures must be re-recorded against the new schema.
-3. Declare the integration complete **at the agreed scope**, naming what was and wasn't covered.
+3. **Re-run phase 7 Step 4.5** (the implicit Steam sign-in test) on the final release candidate if code
+   changed since it last passed. Finalize only on a pass, or "not a Steam game".
+4. Declare the integration complete **at the agreed scope**, naming what was and wasn't covered.
 
 ## 4. Questions to ask the human
 - **Step 2 (the core one):** which recommended gaps to expand now vs. finalize at current scope — expansion
