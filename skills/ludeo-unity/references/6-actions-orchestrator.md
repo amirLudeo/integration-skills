@@ -66,11 +66,15 @@ for approval** (the action list is a judgment call — naming, keep/drop, scope)
 approval**, then the orchestrator **runs the gate**: recompile clean + play and confirm each action
 **emits in the log in BOTH flows** (capture *and* replay).
 
-**Split this gate — only the play half needs a human.** The agent recompiles headlessly
-(`-batchmode -quit … -logFile`) and reads the result itself; emission evidence is log-only, and the log is
-readable, so the agent verifies it directly once the run has happened. What the agent cannot do is *play*
-the game to produce that run — capture and replay need the integrator. Do not hand over the compile half
-as well. See `learnings/common-mistakes/agent-can-run-unity-compile-gates-headlessly.md`.
+**The agent runs both halves of this gate.** It recompiles headlessly (`-batchmode -quit … -logFile`,
+see `learnings/common-mistakes/agent-can-run-unity-compile-gates-headlessly.md`) and produces the runs
+with the play loop ([`agent-play-loop.md`](agent-play-loop.md)): one `-Mode capture` game (Creator flow)
+and one `-Mode replay` game of a Ludeo you already have (Player flow). Pass = every mapped action's
+emission line in both logs, none rejected, none before Begin in the replay. The script sends no input, so
+an idle player never kills, dies or completes much: for those actions add a stand-in to the `LUDEO_DEV`
+hook that goes through the game's own path (damage an enemy, apply lethal damage to the player, never a
+direct `SendAction`), and say which actions a stand-in proved. The user plays only for an action no
+stand-in can reach.
 
 ### Reading the logs (the gate)
 
@@ -85,8 +89,8 @@ The orchestrator relays whatever a subagent surfaces — it does not invent its 
 - **Task 1:** genre (if the web search fails); a candidate that's plausibly state/noise (keep or drop);
   whether a player-scoped action's site can fire for non-player actors (needs a player-guard).
 - **Task 1 gate:** approve `GAME_ACTIONS_MAP.md` (kept actions, names, drops, scope).
-- **Task 2 gate:** confirm a clean recompile + each action emits in the log in **both** Creator and Player
-  flow, and that the player-scoped actions are correctly attributed.
+- **Task 2 gate:** nothing, normally. The agent checks it through the play loop, and asks the user to play
+  only for an action no stand-in can reach.
 - **Out-of-code:** the **platform global-trigger mapping** for `StartNoneLudeable`/`StopNoneLudeable` — a
   one-time step the integrator performs on the platform (task 2 documents it).
 

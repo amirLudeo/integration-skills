@@ -79,8 +79,14 @@ Task 4 adds: the per-restore instrumentation shows wave N's attributes applied, 
 counts and no `keyMap` miss, and `replay.png` shows nothing floating in empty space, through the floor or
 far from the geometry (the placement check).
 
+A Ludeo ends when its time limit runs out, which is roughly its clip length. Anything a replay must show
+after Play has to fit inside that, so keep `-PlaySeconds` under the clip length: a short clip ends the run
+early, and that is not a bug.
+
 **On a failure,** give the run's log and picture to the task's fix subagent (orchestrator §3), rebuild, and
-re-run the same step.
+re-run the same step. If a replay that passed before fails with no code change, check the environment
+first: once 9 of 45 such replays failed only because the user's save had changed under them. Put the
+copied-aside save back (or replay on an empty profile) before you blame the code.
 
 **Sign-off.** When the wave passes, send the user the evidence (Ludeo ids, the pass lines, `replay.png`) with
 the checks one auto-started launch can't do: replay one Ludeo then another, the overlay's pause and resume,

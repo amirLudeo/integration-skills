@@ -35,7 +35,12 @@ the target environment. This is the final phase — when it passes, the build is
 - [ ] **Confirmed Ludeos replayed on this build** (from the second upload on, or whenever restore code changed):
       a script launches each Ludeo the integrator confirmed on screen, collects the restore's post-settle checks
       and closes it; every Ludeo shows all its checks and none is `WRONG`. See
-      `learnings/architecture/replay-every-confirmed-ludeo-as-a-regression-gate-before-upload.md`.
+      `learnings/architecture/replay-every-confirmed-ludeo-as-a-regression-gate-before-upload.md`. Run them
+      yourself with the play loop's `-Mode replay` ([`agent-play-loop.md`](agent-play-loop.md)), first on the
+      dev build, then on this one.
+- [ ] **One replay on a fresh profile**, before the first upload: move the game's save folder aside, replay a
+      confirmed Ludeo, put the folder back. First-time tutorials and popups the integrator's own save has long
+      dismissed show only here, and every cloud viewer sees them.
 - [ ] A **release player build folder** exists — **the user triggers the build in the Unity Editor**
       (current platform; Ludeo capture is Windows-desktop). The agent does **not** drive the Editor build.
 - [ ] The **`validate-build`** user-level skill (the self-contained gate; also writes `run.bat`).
