@@ -165,9 +165,11 @@ turns the reader on.
    around the file or its call):
    ```csharp
    // LudeoConfigFile.cs — reads LudeoConfig.ini next to the .exe and applies it to the in-memory LudeoSettings.
-   using System; using System.IO; using UnityEngine; using LudeoSDK.UnityScripts;
+   using System; using System.Collections.Generic; using System.IO; using UnityEngine; using LudeoSDK; using LudeoSDK.UnityScripts;
    public static class LudeoConfigFile {
        public const string FileName = "LudeoConfig.ini";
+       // Keys the reader does not apply itself (e.g. the agent play loop's devEnter), for the integration's own dev code.
+       public static readonly Dictionary<string, string> Extra = new Dictionary<string, string>();
        // Call as the FIRST thing your bootstrap does, BEFORE LudeoManager.Initialize().
        public static void Apply() {
    #if UNITY_EDITOR
@@ -191,10 +193,11 @@ turns the reader on.
                    case "steamUser":   case "launcherUserId": steamUser  = val; break;  // REQUIRED with betaBranch
                    case "betaBranch":  case "betaVersion":    betaBranch = val; break;  // REQUIRED with steamUser
                    case "platformUrl": s.platformUrl = val; break;
-                   case "apiKey":      s.apiKey      = val; break;
+                   case "apiKey":      s.apiKey      = val; break;  // gitleaks:allow (reads the file; no key here)
                    case "gameVersion": s.gameVersion = val; break;
                    case "ludeoToAutoStart": s.ludeoToAutoStart = val; s.autoStartInLudeo = val.Length > 0; break;
-                   default: Debug.LogWarning($"[Ludeo] config: unknown key '{key}' ignored"); break;
+                   case "ludeoLogLevel": if (Enum.TryParse(val, true, out LudeoLogLevel level)) s.ludeoLogLevel = level; break;
+                   default: Extra[key] = val; break;  // read by the integration's dev code; never by the SDK
                }
            }
            s.runWithoutLauncher = runWithoutLauncher;
@@ -238,7 +241,9 @@ turns the reader on.
    steamUser  = 7656119XXXXXXXXXX
    betaBranch = <the target environment's beta name>   # never "public", never Production
 
-   # Optional: platformUrl, apiKey, gameVersion, ludeoToAutoStart (a Ludeo id to replay on launch).
+   # Optional: platformUrl, apiKey, gameVersion, ludeoToAutoStart (a Ludeo id to replay on launch),
+   # ludeoLogLevel (Log for SDK diagnostics; the default Error hides most SDK lines).
+   # Any other key is kept for the integration's own dev code (e.g. the agent play loop's devEnter).
    ```
    (The two `X`/`<…>` values above are the slots the user fills — the file you write has their real values.)
 5. **Put it in every dev build folder, durably.** Unity does not delete unknown files on a rebuild, so a
