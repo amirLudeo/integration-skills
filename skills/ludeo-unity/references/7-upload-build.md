@@ -260,7 +260,8 @@ game → skip it and say so.
 4. **Pass** = `Auth details not specified. Trying automatic auth.` and `Steamworks detected.`, then
    `Activate` `Success`. The `users/auth` line shows the `betaCode` it used: empty means the default
    environment, so if players use a Ludeo beta branch, re-run with the game on that branch in Steam.
-   `InvalidAuth` usually means the game initializes Steam after `Activate`.
+   `InvalidAuth` usually means `Activate` ran before Steam finished initializing: gate it on the Steam
+   wrapper's init result, never `SteamAPI.IsSteamRunning()` (true even when Steam is logged out).
 5. A failure blocks phase 8's finalize, not the upload. Record the result and the `betaCode`; delete the
    test folder.
 
