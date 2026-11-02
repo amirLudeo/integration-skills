@@ -177,9 +177,11 @@ The orchestrator relays whatever a subagent surfaces — it does not invent its 
   displaced-frame bugs — see the Task-4 placement check), plus a 2nd Ludeo for the replay-twice tests.
   **Re-capture** if a prior wave's Ludeo is stale.
 - **Task 2 gate:** approve **wave N's** rows in `RESTORATION_PLAN.md`.
-- **Task 3 gate (wave 1):** replay→replay and the overlay's pause/resume, in the wave's sign-off (you prove
-  freeze → scene load → stub → `Begin` from your own replay's log).
-- **Task 4 gate:** the replay-twice no-leak test and playing the moment to its end, in the wave's sign-off
+- **Task 3 gate (wave 1):** the overlay's pause/resume, in the wave's sign-off (you prove freeze → scene
+  load → stub → `Begin` from your own replay's log, and the replay→replay teardown from its Play Again run,
+  [`agent-play-loop.md`](agent-play-loop.md) → Play again).
+- **Task 4 gate:** the replay-twice no-leak test with a *different* second Ludeo (Play Again replays the same
+  one, so it can't show the first's state leaking) and playing the moment to its end, in the wave's sign-off
   (you prove the first frame's restored state and the **placement sanity check** from your own replay's log
   and screenshot — §3).
 - **End of each wave:** "wave N restores — widen to wave N+1?" (confirm-before-widen), with the evidence.

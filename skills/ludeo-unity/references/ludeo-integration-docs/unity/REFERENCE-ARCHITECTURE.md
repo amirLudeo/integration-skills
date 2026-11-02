@@ -639,12 +639,7 @@ public class LudeoGameplaySessionManager : ILudeoGameplaySessionManager
         // Defensive: with the begin-gate (HandleRoomReady/NotifyPlayerAdded) the player is non-null
         // here, but never call BeginGameplay on a null player — that's the silent-NRE failure of the race.
         if (m_data.ludeoPlayer == null) { Debug.LogError("[Ludeo] BeginGameplay: no LudeoPlayer"); return; }
-        m_data.ludeoPlayer.BeginGameplay(d =>
-        {
-            if (d.resultCode != LudeoResult.Success) { Debug.LogError($"[Ludeo] BeginGameplay: {d.resultCode}"); return; }
-            Debug.Log("[Ludeo] BeginGameplay: Success");   // the agent's play loop times its capture from this line
-            onReady();
-        });
+        m_data.ludeoPlayer.BeginGameplay(d => { if (d.resultCode == LudeoResult.Success) onReady(); });
     }
     public void EndGameplay(Action onDone)
         => m_data.ludeoPlayer.EndGameplay(d => m_data.ludeoRoom.CloseRoom(_ => { m_data.ludeoRoom = null; onDone?.Invoke(); }));
