@@ -1,7 +1,8 @@
 <#
   Runs one Development build of the game for the agent's play loop (references/agent-play-loop.md).
-  capture: waits for -AfterLine (default: the dev hook's "[Ludeo][dev] entered"), leaves the game alone
-           -PlaySeconds, presses the overlay's capture key, waits for the clip's upload.
+  capture: waits for -AfterLine (default: the dev hook's "[Ludeo][dev] entered") and -BeginLine (the
+           layer's BeginGameplay success), leaves the game alone -PlaySeconds after Begin, presses the
+           overlay's capture key, waits for the clip's upload.
   replay:  waits for -AfterLine (the layer's line once the restore is applied and the game waits for
            Play), presses the overlay's Play key, lets it run -PlaySeconds.
   Either way it saves the game window's picture (<exe folder>\capture.png or replay.png) for the agent to
@@ -14,7 +15,8 @@ param(
   [Parameter(Mandatory)][string]$Log,   # the player's default Player.log: a -logFile capture can stop after start-up
   [Parameter(Mandatory)][ValidateSet('capture', 'replay')][string]$Mode,
   [string]$AfterLine = '[Ludeo][dev] entered',   # replay: pass the layer's line once the restore waits for Play
-  [int]$PlaySeconds = 90,   # the clip holds about the last 60 s before the press: it must start mid-run, not at Begin
+  [string]$BeginLine = 'BeginGameplay: Success',   # capture: the layer logs it once a gameplay session is open
+  [int]$PlaySeconds = 30,   # capture: counted from the Begin line, so loading time never eats into the clip
   [string]$FailPattern = 'continuing without Ludeo|InvalidAuth',   # regex; the run stops at the first match
   [int]$TimeoutSec = 300,   # per wait
   [int]$Monitor = 0   # 1-based; default: the second screen when there is one, away from the user's work
@@ -91,10 +93,12 @@ function Shot {
 
 if (Wait-Line $AfterLine) {
   if ($Mode -eq 'capture') {
-    Start-Sleep $PlaySeconds
-    Shot
-    Press 'HighlightCapture'
-    [void](Wait-Line 'Finished uploading video data')
+    if (Wait-Line $BeginLine) {   # no Begin, no gameplay session: nothing to capture
+      Start-Sleep $PlaySeconds
+      Shot
+      Press 'HighlightCapture'
+      [void](Wait-Line 'Finished uploading video data')
+    }
   } else {
     Press 'Confirm'
     Start-Sleep 3; Shot; Start-Sleep ([Math]::Max(0, $PlaySeconds - 3))

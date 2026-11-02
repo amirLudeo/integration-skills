@@ -20,7 +20,10 @@ waive it.
    first-run setup's confirm included; never sent input), and logs `[Ludeo][dev] entered` once the player
    has control. `devEnter` names the target in whatever form the hook reads (`level=Forest;mode=Survival`, a
    save slot), so a new target changes the ini, not the code.
-4. **Build** a Development player with `LUDEO_DEV`, the way the project builds (its build method or Build
+4. **The Begin line.** The layer logs a line holding `BeginGameplay: Success` when `BeginGameplay`'s callback
+   reports `Success` (the SDK logs none of its own). The script waits for it before it times the capture,
+   so a run never captures before a gameplay session has opened. If the layer logs something else, add it.
+5. **Build** a Development player with `LUDEO_DEV`, the way the project builds (its build method or Build
    Profile, plus `BuildOptions.Development`, and `extraScriptingDefines = { "LUDEO_DEV" }` if its dev
    configuration lacks the define), headless:
    `Unity.exe -batchmode -quit -projectPath <ABS> -executeMethod <its build method> -logFile <ABS>`.
@@ -30,8 +33,8 @@ waive it.
 
 **Per wave, the target:** mid-run, past the first segment, with the wave's state on screen (`OBJECT_TRACKING.md`
 → `## Wave Rollout`, `CODE_MAP.json` → entry/bootstrap and session boundaries). The script sends no input,
-so the player stands idle for the whole run: pick a spot where an idle player stays alive and in play for
-90 s. If no save holds one, ask the user once to play there and save. Copy the save folder aside before the
+so the player stands idle for the whole run: pick a spot where an idle player stays alive and in play from
+entering until 30 s after the gameplay session begins. If no save holds one, ask the user once to play there and save. Copy the save folder aside before the
 first run, since runs can autosave over it, and put it back when phase 5 ends.
 
 ## Running one game
@@ -50,8 +53,10 @@ the second screen when there is one; without asking, tell the user when a batch 
 ## Each gate
 
 **Capture** (task 1). In the ini, `devEnter` set and `ludeoToAutoStart` blank. Run with `-Mode capture`: it
-waits for `[Ludeo][dev] entered`, leaves the game alone 90 s (the clip holds about the last 60 s, and all of
-it must be play), then presses the overlay's capture key. Pass:
+waits for `[Ludeo][dev] entered` and the Begin line, leaves the game alone 30 s after Begin (however long
+the loading took, the clip then holds 30 s of play inside an open session), then presses the overlay's
+capture key. No Begin line within `-TimeoutSec` (300 s) means no gameplay session opened: the script stops
+the game without capturing; read the layer's Begin path in the log. Pass:
 - the task-1 lines (registration, the wave's writers, no `LudeoResult` errors), then
   `onCaptureVideoRequest. gameplayId=<id>, highlightId=<id>` and `Finished uploading video data for
   highlightId <id>`;
