@@ -35,7 +35,14 @@ the target environment. This is the final phase — when it passes, the build is
 - [ ] **Confirmed Ludeos replayed on this build** (from the second upload on, or whenever restore code changed):
       a script launches each Ludeo the integrator confirmed on screen, collects the restore's post-settle checks
       and closes it; every Ludeo shows all its checks and none is `WRONG`. See
-      `learnings/architecture/replay-every-confirmed-ludeo-as-a-regression-gate-before-upload.md`.
+      `learnings/architecture/replay-every-confirmed-ludeo-as-a-regression-gate-before-upload.md`. Run them
+      yourself with the play loop's `-Mode replay` ([`agent-play-loop.md`](agent-play-loop.md)), first on the
+      dev build, then on this one.
+- [ ] **One replay on a fresh profile**, before the first upload: move the game's save folder aside, replay a
+      confirmed Ludeo, put the folder back. First-time tutorials and popups the integrator's own save has long
+      dismissed show only here, and every cloud viewer sees them.
+- [ ] **No dev files in the upload folder.** `ludeo builds upload` sends every file in the folder and has no
+      exclude option: move `LudeoConfig.ini` and any other local config out before the dry run, and put them back after.
 - [ ] A **release player build folder** exists — **the user triggers the build in the Unity Editor**
       (current platform; Ludeo capture is Windows-desktop). The agent does **not** drive the Editor build.
 - [ ] The **`validate-build`** user-level skill (the self-contained gate; also writes `run.bat`).
@@ -246,6 +253,25 @@ crash), and **ensures a `run.bat` exists** (creating one when you approve).
   - Unity logs and the SDK's own `OutputDebugString` logs stay **separate streams** in the collected
     output — align them by timestamp rather than expecting one interleaved file.
 
+### Step 4.5: Test the implicit sign-in (Steam games) — run it yourself
+Test builds sign in explicitly (a tester's id) and the cloud uses its own token, so nothing else
+exercises how the studio's **shipped Steam game** signs creators in: implicitly, from Steam. Not a Steam
+game → skip it and say so.
+1. **Build the studio's normal release configuration** (its build method or Build Profile, no Development
+   flag) into a test folder outside the upload folder, with `runWithoutLauncher = false` for this build
+   only (restore it after).
+2. **Steam must be running and signed in.** If it isn't, ask the user once, then continue.
+3. **Launch it in place:** `steam_appid.txt` in the test folder only (otherwise Steam relaunches its own
+   installed copy), `-logFile <abs>`, no `-ludeoAuthID` / `-ludeoBetaBranch` arguments, `LUDEO_AUTH_ID` /
+   `LUDEO_BETA_BRANCH` cleared. Wait for `Activate`, then close it.
+4. **Pass** = `Auth details not specified. Trying automatic auth.` and `Steamworks detected.`, then
+   `Activate` `Success`. The `users/auth` line shows the `betaCode` it used: empty means the default
+   environment, so if players use a Ludeo beta branch, re-run with the game on that branch in Steam.
+   `InvalidAuth` usually means `Activate` ran before Steam finished initializing: gate it on the Steam
+   wrapper's init result, never `SteamAPI.IsSteamRunning()` (true even when Steam is logged out).
+5. A failure blocks phase 8's finalize, not the upload. Record the result and the `betaCode`; delete the
+   test folder.
+
 ### Step 5: Locate the CLI and authenticate
 1. `ludeo --help` — confirm the CLI is reachable and learn the current command set (the CLI evolves;
    **trust `--help` over any commands quoted here**). If not found, ask the user to install it / give the path.
@@ -443,6 +469,7 @@ list, otherwise ask the user for it (Studio Lab → the environment). Or have th
 - [ ] `--sdk-version` **confirmed with the user** (not trusted from the manifest).
 - [ ] `--changes-description` non-empty (inferred or user-supplied) — empty only if the user chose so.
 - [ ] `--dry-run` reviewed (file list + resolved flags) and confirmed with the user.
+- [ ] **Implicit Steam sign-in tested** (Step 4.5): automatic-auth lines + `Activate` `Success`, or "not a Steam game".
 - [ ] **Final upload ran ONLY after explicit user confirmation** (or the user ran it themselves) — never autonomously.
 - [ ] Final `builds get` confirms status `success` + correct `game-version`/`sdk-version`/build type/`exec-path`.
 - [ ] **Build assigned** to the environment named at the Input Contract gate (`builds assign … --env-id`, after an

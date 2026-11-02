@@ -146,7 +146,8 @@ empty) for implicit Steam auth.
 `LudeoSettings.asset` is baked into `resources.assets` at build time, so a shipped player can't change
 it. QA teams iterating on a built (non-Editor) game need to flip the **dev triad** —
 `runWithoutLauncher`, `launcherUserId`, `ludeoToAutoStart` (plus `betaVersion`, required alongside
-`launcherUserId` for no-launcher auth) — **per tester, without a rebuild each time.**
+`launcherUserId` for no-launcher auth) — **per tester, without a rebuild each time.** The agent's own play loop
+([`agent-play-loop.md`](../../agent-play-loop.md)) runs on it too, so every integration sets it up.
 
 The sibling C++/proprietary skill solves this with a `ludeo.ini` next to the executable (its canonical
 config source). Unity's model differs — the baked `.asset` stays the production source of truth (phase 7
@@ -156,7 +157,7 @@ gated so it can never affect a production build:**
 1. **Add a `LUDEO_DEV` scripting define to your Development/QA build configs only** (Player Settings →
    Scripting Define Symbols). Production configs must **not** define it.
 2. **Create the loader** `LudeoDevConfig.cs`, entirely inside `#if LUDEO_DEV` so it compiles out of
-   production. It reads an external `ludeo-dev.ini` (key=value + `#` comments, same shape as the sibling's
+   production. It reads an external `LudeoConfig.ini` (key=value + `#` comments, same shape as the sibling's
    `ludeo.ini`) sitting **next to the player executable** and mutates the in-memory `LudeoSettings`
    instance **before** the package reads it:
    ```csharp
@@ -164,9 +165,10 @@ gated so it can never affect a production build:**
    #if LUDEO_DEV
    using System.IO; using UnityEngine; using LudeoSDK.UnityScripts;
    public static class LudeoDevConfig {
+       public static string DevEnter;   // read by the game-specific LUDEO_DEV hook (agent-play-loop.md)
        // Call as the FIRST line of your bootstrap, BEFORE LudeoManager.Initialize().
        public static void ApplyOverrides() {
-           var path = Path.Combine(Application.dataPath, "..", "ludeo-dev.ini"); // next to the .exe / SDK DLLs
+           var path = Path.Combine(Application.dataPath, "..", "LudeoConfig.ini"); // next to the .exe / SDK DLLs
            if (!File.Exists(path)) { Debug.Log($"[Ludeo][dev] no {path}; using LudeoSettings.asset as-is"); return; }
            var s = Resources.Load<LudeoSettings>("LudeoSettings");   // the SAME shared instance the package reads
            foreach (var raw in File.ReadAllLines(path)) {
@@ -178,9 +180,11 @@ gated so it can never affect a production build:**
                    case "launcherUserId":     s.launcherUserId     = val; break;   // required with betaVersion in no-launcher mode
                    case "betaVersion":        s.betaVersion        = val; break;   // required with launcherUserId in no-launcher mode
                    case "ludeoToAutoStart":   s.ludeoToAutoStart   = val; s.autoStartInLudeo = !string.IsNullOrEmpty(val); break;
+                   case "ludeoLogLevel":      s.ludeoLogLevel      = (LudeoSDK.LudeoLogLevel)System.Enum.Parse(typeof(LudeoSDK.LudeoLogLevel), val, true); break;
+                   case "devEnter":           DevEnter             = val; break;
                    default: continue;
                }
-               Debug.Log($"[Ludeo][dev] override {key}={val}");
+               Debug.Log($"[Ludeo][dev] override {key}={(key == "launcherUserId" ? "<set>" : val)}");   // keep the Steam id out of logs
            }
        }
    }
@@ -194,19 +198,25 @@ gated so it can never affect a production build:**
    LudeoManager.Initialize();
    LudeoManager.SessionManager.CreateSession(out var session);
    ```
-4. **Author `ludeo-dev.ini` with the *actual* QA values — do not ship placeholders.** Ask the user for
-   the tester Steam id and which environment to debug against, and copy that environment's beta name as Matching step 1 in [`ludeo-studio-mcp.md`](../../ludeo-studio-mcp.md) defines it
-   (never `{}`, `null` or empty; an unknown name means running step 1 first) from `KYG.md` → Ludeo platform into `betaVersion` (required alongside the Steam id in no-launcher mode; a
-   named QA environment, never Production), whether to skip the launcher, and any Ludeo id to auto-replay, and write them in:
+4. **Author `LudeoConfig.ini`.** For the agent's play loop it holds only per-run keys; the login stays in
+   `LudeoSettings`. The three login keys are for a QA tester who runs as another account: then ask the user
+   for the tester Steam id and which environment to debug against, and copy that environment's beta name as
+   Matching step 1 in [`ludeo-studio-mcp.md`](../../ludeo-studio-mcp.md) defines it (never `{}`, `null` or
+   empty; an unknown name means running step 1 first) from `KYG.md` → Ludeo platform into `betaVersion` (a
+   named QA environment, never Production). Never ship placeholders.
    ```ini
    # Ludeo DEV/QA overrides — applied ONLY in LUDEO_DEV builds, never production. key = value; '#' = comment.
-   runWithoutLauncher = true          # true = skip Steam/launcher auth for local QA
-   launcherUserId     = QA_TESTER_1   # Steam id to run as in no-launcher mode — REQUIRED with betaVersion
-   betaVersion        = <QA env's beta name> # target environment's Beta Version Name — REQUIRED with launcherUserId; never "public"
+   ludeoLogLevel      = Log           # Log = the SDK lines the agent's play loop reads (default Error hides them)
    ludeoToAutoStart   =               # a Ludeo id to auto-replay on launch; blank = normal capture
+   devEnter           =               # passed to the game's own load/start call; blank = normal boot
+   # QA tester only, to run as another account (all three or none):
+   # runWithoutLauncher = true
+   # launcherUserId     = <tester Steam id>
+   # betaVersion        = <QA env's beta name>   # never "public"
    ```
-5. **Ship `ludeo-dev.ini` to the build output** (a build post-process / copy step, same as any sidecar
-   file). It only matters for `LUDEO_DEV` builds; a production build never reads it.
+5. **Ship `LudeoConfig.ini` to the build output** (a build post-process / copy step, same as any sidecar
+   file), copying it only when the output has none, so a rebuild keeps the edits made for a run.
+   It only matters for `LUDEO_DEV` builds; a production build never reads it.
 
 **Ordering caveat:** `runWithoutLauncher` + `launcherUserId` + `betaVersion` are consumed at `Activate()`,
 which your integration layer owns, so overriding before `LudeoManager.Initialize()` is safe. `ludeoToAutoStart` /
@@ -215,7 +225,7 @@ bootstrap — if the auto-replay doesn't pick up the override, run `ApplyOverrid
 `[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]` (earliest hook) or disable
 the package's auto-start and trigger the replay yourself.
 
-**Verify:** make a Development build with `LUDEO_DEV` defined, edit `ludeo-dev.ini`, launch, and confirm
+**Verify:** make a Development build with `LUDEO_DEV` defined, edit `LudeoConfig.ini`, launch, and confirm
 the `[Ludeo][dev] override …` lines in `Player.log` (see `unity/READING-UNITY-LOGS.md`) *and* that the SDK
 behaved per the file (e.g. authenticated as the overridden user). A production build (no `LUDEO_DEV`) must
 show none of those lines.
