@@ -42,7 +42,9 @@ Read `ProjectSettings/EditorSettings.asset` → `m_SerializationMode`, and recor
   `Unity.exe -batchmode -quit -projectPath <ABS> -executeMethod LudeoIntegration.EditorTools.LudeoProjectDump.Run -ludeoDumpOut <ABS>/ludeo-integration-plan/project-dump -ludeoDumpPrefabs -logFile <ABS>`.
   It writes every build scene and prefab as text, one `path = value` line per serialized field, and saves
   nothing. Pass = `[LudeoDump] done scenes=<n> prefabs=<m>`. Re-run it when the scenes change; keep
-  `project-dump/` out of commits.
+  `project-dump/` out of commits. Record the dump folder, the copied script's path and the exact command
+  in the CODE_MAP `serialization` block (§6): phases 4 and 5 start in fresh sessions and find the dump only
+  through it.
 
 On Unity 6+, a project that already has the Unity CLI's Pipeline package can answer the same questions
 through a headless Editor instead (`unity command get_scene_hierarchy`, `get_component_properties`).
@@ -228,7 +230,9 @@ neither — and any of those can be boot-straight or menu-gated.
 2. **Save:** `ludeo-integration-plan/CODE_MAP.json` containing:
    - `project_summary` — Unity version, render pipeline if detectable, key `Assets/` folders, asmdefs
    - `serialization` — `m_SerializationMode` found (Mixed / ForceBinary / ForceText) and how scenes were
-     read (the files, or the `LudeoProjectDump.cs` output)
+     read (the files, or the `LudeoProjectDump.cs` output). For Mixed / ForceBinary also: `dump_dir`
+     (`ludeo-integration-plan/project-dump`), `dump_script` (where the copied `LudeoProjectDump.cs` lives)
+     and `dump_command` (the exact command that regenerates the dump)
    - `packages` — relevant entries from `Packages/manifest.json`; whether the Ludeo package is present
    - `scenes` — scene list + load order; which is bootstrap, which are gameplay
    - `entry_points` — bootstrap MonoBehaviours / `RuntimeInitializeOnLoadMethod` hooks (file, line)
@@ -304,7 +308,8 @@ The gate — satisfy all before advancing to phase 3.
       no guessed class/method/scene names.
 
 **Skill-specific additions:**
-- [ ] `serialization` recorded (mode found + how scenes were read); the project's serialization unchanged.
+- [ ] `serialization` recorded (mode found + how scenes were read; on Mixed / ForceBinary also `dump_dir`,
+      `dump_script`, `dump_command`); the project's serialization unchanged.
 - [ ] `session_boundaries` lists **every distinct gameplay exit path** (not just the happy-path end),
       with `assembly` set; open-world/procedural sub-structure used where applicable.
 - [ ] **World-frame determinism question (§4.6) answered from the placement code** — `world_frame`

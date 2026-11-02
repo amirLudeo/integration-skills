@@ -37,6 +37,10 @@ for each widened wave.
       census + wave plan** (`## Wave Rollout`, `## Object Type Census`, `## Spawn/Own Pattern Summary`) and
       the user **approved** it (type coverage, load-bearing flags, wave order, Wave 1 = restorable spine +
       must-have set). The **per-entity deep detail is NOT in it yet** — task 0 appends it per wave.
+- [ ] **Scene and prefab contents.** If `ludeo-integration-plan/CODE_MAP.json` → `serialization` is
+      **Mixed** or **ForceBinary**, the readable copy of scenes and prefabs is the dump at
+      `serialization.dump_dir` (`ludeo-integration-plan/project-dump/`), regenerated with
+      `serialization.dump_command` (phase 2 Step 1). Read it instead of asking the integrator for inspector values.
 - [ ] **A timer goal on the debug environment**, so each wave can cut a test Ludeo — `create_goal_or_constraint` in
       [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md).
 - [ ] The task briefs are present in `references/` (see §3): `9a` (deep-scope), `9`, `10`, `11`, `12`.
@@ -57,6 +61,10 @@ subagent that's gone.
 > orchestrator owns it), and to return a short summary + the files it created/edited + any human-questions.
 > On return, **verify the artifacts exist**, relay questions, then **run the gate** (below). Pass state
 > **by file**, never by re-narrating prior output.
+>
+> **Binary projects (Mixed / ForceBinary):** include `serialization.dump_dir` in every subagent's input
+> paths. When a task edited a scene or prefab, re-run `serialization.dump_command` before dispatching the
+> next task, so no subagent reads a stale dump.
 
 **Fix-loop pattern (per gate failure):**
 > When a human gate fails (compile error, missing log line, wrong replay behavior), the orchestrator
