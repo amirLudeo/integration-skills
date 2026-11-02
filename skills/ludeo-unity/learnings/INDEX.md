@@ -8,7 +8,7 @@ Regenerate with `node scripts/generate-learnings-index.mjs` after adding a learn
 If you add a learning where you cannot run node (e.g. an installed skill copy),
 append the line by hand in the same format.
 
-Total: 179
+Total: 180
 
 - architecture/a-replay-teleport-breaks-ring-ahead-level-streaming.md | generalizable | p5 | Does the game prepare its level content just-in-time around the player - room setup one ring ahead, encounters configured as neighbors unlock? A replay that teleports the player breaks the streaming's ordering assumptio…
 - architecture/a-world-ready-flag-may-still-answer-for-the-world-you-are-leaving.md | generalizable | p5 | Does your restore flow poll a game-owned 'world/level is ready' flag to know when to restore? Find out what CLEARS it. If it is cleared by the loader or generator rather than by the load REQUEST, it still answers for th…
@@ -50,6 +50,7 @@ Total: 179
 - architecture/split-the-seeded-stream-world-vs-combat.md | generalizable | p4 | Converting a game to seeded randomness for replay? Check WHAT ELSE draws from that stream. If any draw fires at player frequency - enemy AI decisions, drop rolls, chest contents - a single shared stream cannot reproduce…
 - architecture/stamp-your-trace-with-the-sdks-own-clock-format.md | universal | p3,5 | Stamp every integration log line with the SDK's own clock format
 - architecture/store-platform-removal-is-layered-not-a-single-fix.md | generalizable | p1,3,7 | Does the game require a store platform client (Steam / Epic / a console SDK) to reach gameplay? A Ludeo cloud machine has none of them — scope this as a layered removal, not a one-line fallback.
+- architecture/the-next-ludeo-comes-from-the-end-of-run-screen-not-the-auto-start.md | generalizable | p5 | Are you about to test replay -> replay (a second LudeoSelected in one process) on a LOCAL player-flow run started with LudeoSettings autoStartInLudeo / ludeoToAutoStart? The auto-start injects exactly one selection; a s…
 - architecture/the-replay-world-comes-pre-populated-reconcile-dont-add.md | generalizable | p5 | Does the replay rebuild the world through the game's normal level-build path, and does that path populate it (pre-spawned waves, default enemies, loot) on its own?
 - architecture/the-restore-point-is-the-clip-start-not-the-capture-click.md | universal | p5 | The restore point is the clip START, not the capture click
 - architecture/the-state-upload-is-lossy-above-a-ceiling.md | generalizable | p4,5 | How many objects does your capture track in the busiest level? Above roughly a hundred the state upload starts DROPPING objects silently — every CreateObject still returns Success — so scope the sweep on a logged per-ty…
