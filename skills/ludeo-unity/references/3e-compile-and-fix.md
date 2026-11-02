@@ -1,9 +1,8 @@
 # Phase 3 · Task 5 — Compile & Run Gate (Unity)
 
-> **Human-gated task — NOT a subagent.** The orchestrator (`3-lifecycle-orchestrator.md`) drives this
-> directly **with the user**, because the agent cannot see the Unity Editor Console and the gate needs
-> the human to focus the Editor (recompile) and play the game (overlay). This is the single
-> human touch-point of phase 3.
+> **Run by the orchestrator — NOT a subagent.** The orchestrator (`3-lifecycle-orchestrator.md`) compiles
+> headlessly and reads the log, then checks the overlay with one capture game through the play loop
+> (Step 3). Only if it can't run the game does it drive this **with the user** instead.
 > **Entry: only via the orchestrator.** This is task 5 of 5 in phase 3 (SDK lifecycle), not a phase of
 > its own — never open or run it standalone.
 >
@@ -55,7 +54,11 @@ A non-zero exit + `error CS…` lines = compile errors. (Use the Editor path mat
 - **Step 2 — `LUDEO_SDK` off (only if that define is used).** Remove it from **Player → Scripting
   Define Symbols** (or `-define:`), recompile, fix the `#else` fallback types. Skip if relying on the
   runtime switch (the normal case) — CR-001 disable is runtime, not a compile mode.
-- **Step 3 — run.** Clean compile → have the user play and watch for the overlay (§7).
+- **Step 3 — run, yourself.** Clean compile → do the play loop's one-time setup now
+  ([`agent-play-loop.md`](agent-play-loop.md) → *Set up once*) and run one game with `-Mode capture`. Pass
+  = `onCaptureVideoRequest … highlightId=<id>` in the log and `capture.png` showing play. That proves the
+  overlay took the key, which a glance at an idle overlay can't. Only if you can't run the game (that file
+  → *When you can't run it*) have the user play and watch for the overlay (§7).
 
 **Max 10 failed attempts**, then list remaining `error CS`, identify the pattern (same file/type?),
 and hand to the user for manual review.
@@ -72,7 +75,8 @@ and hand to the user for manual review.
 
 This task **is** the human interaction:
 - Ask the user to **focus the Editor** to recompile (or run the headless command) and report/confirm.
-- Ask the user to **play the game, enter gameplay**, and confirm the **capture overlay** appears.
+- Only if you can't run the game yourself (Step 3): ask the user to **play the game, enter gameplay**,
+  and confirm the **capture overlay** appears.
 - If the same error persists after fixes, share the exact `error CS…` line, the code section, and the
   doc-12 signature checked against, and ask for guidance.
 

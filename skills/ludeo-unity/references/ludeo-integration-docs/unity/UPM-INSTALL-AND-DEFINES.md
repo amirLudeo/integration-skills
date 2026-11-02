@@ -157,7 +157,7 @@ gated so it can never affect a production build:**
 1. **Add a `LUDEO_DEV` scripting define to your Development/QA build configs only** (Player Settings →
    Scripting Define Symbols). Production configs must **not** define it.
 2. **Create the loader** `LudeoDevConfig.cs`, entirely inside `#if LUDEO_DEV` so it compiles out of
-   production. It reads an external `ludeo-dev.ini` (key=value + `#` comments, same shape as the sibling's
+   production. It reads an external `LudeoConfig.ini` (key=value + `#` comments, same shape as the sibling's
    `ludeo.ini`) sitting **next to the player executable** and mutates the in-memory `LudeoSettings`
    instance **before** the package reads it:
    ```csharp
@@ -168,7 +168,7 @@ gated so it can never affect a production build:**
        public static string DevEnter;   // read by the game-specific LUDEO_DEV hook (agent-play-loop.md)
        // Call as the FIRST line of your bootstrap, BEFORE LudeoManager.Initialize().
        public static void ApplyOverrides() {
-           var path = Path.Combine(Application.dataPath, "..", "ludeo-dev.ini"); // next to the .exe / SDK DLLs
+           var path = Path.Combine(Application.dataPath, "..", "LudeoConfig.ini"); // next to the .exe / SDK DLLs
            if (!File.Exists(path)) { Debug.Log($"[Ludeo][dev] no {path}; using LudeoSettings.asset as-is"); return; }
            var s = Resources.Load<LudeoSettings>("LudeoSettings");   // the SAME shared instance the package reads
            foreach (var raw in File.ReadAllLines(path)) {
@@ -198,7 +198,7 @@ gated so it can never affect a production build:**
    LudeoManager.Initialize();
    LudeoManager.SessionManager.CreateSession(out var session);
    ```
-4. **Author `ludeo-dev.ini`.** For the agent's play loop it holds only per-run keys; the login stays in
+4. **Author `LudeoConfig.ini`.** For the agent's play loop it holds only per-run keys; the login stays in
    `LudeoSettings`. The three login keys are for a QA tester who runs as another account: then ask the user
    for the tester Steam id and which environment to debug against, and copy that environment's beta name as
    Matching step 1 in [`ludeo-studio-mcp.md`](../../ludeo-studio-mcp.md) defines it (never `{}`, `null` or
@@ -214,7 +214,7 @@ gated so it can never affect a production build:**
    # launcherUserId     = <tester Steam id>
    # betaVersion        = <QA env's beta name>   # never "public"
    ```
-5. **Ship `ludeo-dev.ini` to the build output** (a build post-process / copy step, same as any sidecar
+5. **Ship `LudeoConfig.ini` to the build output** (a build post-process / copy step, same as any sidecar
    file), copying it only when the output has none, so a rebuild keeps the edits made for a run.
    It only matters for `LUDEO_DEV` builds; a production build never reads it.
 
@@ -225,7 +225,7 @@ bootstrap — if the auto-replay doesn't pick up the override, run `ApplyOverrid
 `[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]` (earliest hook) or disable
 the package's auto-start and trigger the replay yourself.
 
-**Verify:** make a Development build with `LUDEO_DEV` defined, edit `ludeo-dev.ini`, launch, and confirm
+**Verify:** make a Development build with `LUDEO_DEV` defined, edit `LudeoConfig.ini`, launch, and confirm
 the `[Ludeo][dev] override …` lines in `Player.log` (see `unity/READING-UNITY-LOGS.md`) *and* that the SDK
 behaved per the file (e.g. authenticated as the overridden user). A production build (no `LUDEO_DEV`) must
 show none of those lines.

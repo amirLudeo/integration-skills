@@ -46,10 +46,9 @@ task in isolated context (no bloat) and lets the user experience one continuous 
 | 4 | Implement layer + hooks | `references/3d-implement-sdk-lifecycle.md` | TDD + plan | layer `.cs` files + edited game hooks |
 | 5 | **Compile + run gate** | `references/3e-compile-and-fix.md` | the edited project | clean compile + live capture overlay |
 
-**Tasks 1–4 run automatically as subagents. Task 5 does NOT** — the agent cannot see the Unity Editor
-Console, and the gate needs the human to focus the Editor (recompile) and play the game (overlay). The
-orchestrator runs 1→4 hands-off, then **surfaces the task-5 gate to the user** and waits for their
-confirmation (or explicit skip). This is the single unavoidable human touch-point in phase 3.
+**Tasks 1–4 run automatically as subagents. Task 5 is run by the orchestrator itself, not a subagent:** a
+headless compile, then one capture game through the play loop (`3e-compile-and-fix.md` Step 3). Only if the
+agent can't run the game does task 5 go to the user, who confirms a clean recompile and the overlay.
 
 **Non-Gameplay Handling is planned in this phase (emitted later).** The guideline folds non-gameplay
 handling into the lifecycle. In Unity it splits three ways — task 1 maps the sites, task 3 plans the
@@ -61,7 +60,7 @@ action names.
 The orchestrator relays whatever a subagent surfaces — it does not invent its own. Expected ones:
 - **In the TDD task:** studio/graphics details and game modes not inferable from code.
 - **In the plan task (open-world/streaming games):** which `start_sites[]` entry binds `OpenRoom`.
-- **The compile + run gate (task 5):** the user confirms a clean recompile and a live capture overlay.
+- **The compile + run gate (task 5):** nothing, unless the agent can't run the game; then the user confirms a clean recompile and a live capture overlay.
 
 ## 5. Patterns to apply
 
@@ -144,13 +143,13 @@ The orchestrator confirms **all** of these before advancing — they are produce
 - [ ] **No dangling non-ludeoable on `End`** — any open `StartNoneLudeable`/`PauseLudeo` span is closed
       before a Gameplay Session ends.
 - [ ] **Project compiles with/without the SDK** (task 5).
-- [ ] **Capture overlay appears at runtime** — the human-confirmed proof a Gameplay Session opened.
+- [ ] **Capture overlay appears at runtime** — the proof a Gameplay Session opened: a capture game logged `onCaptureVideoRequest` (or, if the agent can't run the game, the user saw the overlay).
 
 ## 8. Common Mistakes
 
 - **Running the tasks inline instead of dispatching subagents** — bloats the orchestrator's context and
   loses the one-phase feel. Dispatch; pass artifacts by file.
-- **Trying to subagent-automate the compile gate** — task 5 needs the human + the Editor. Surface it.
+- **Handing task 5 to a subagent** — the orchestrator runs it, with the play loop (or the user, if it can't run the game).
 - **Re-narrating prior output to the next task** instead of pointing it at the artifact file.
 - **Treating callback-driven ops as game call sites** (`AddPlayer`/`Begin`/`CloseRoom` — CR-009).
 - **Planning a config class / re-gathering auth** — config is `LudeoSettings.asset` (phase 1).
