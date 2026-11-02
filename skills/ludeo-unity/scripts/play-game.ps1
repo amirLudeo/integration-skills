@@ -1,11 +1,14 @@
 <#
   Runs one Development build of the game for the agent's play loop (references/agent-play-loop.md).
-  capture: waits for -AfterLine (default: the dev hook's "[Ludeo][dev] entered"), leaves the game alone
-           -PlaySeconds, presses the overlay's capture key, waits for the clip's upload.
+  capture: waits for -AfterLine (default: the dev hook's "[Ludeo][dev] entered") and -BeginLine (the
+           SDK's gameplay-session Begin), leaves the game alone -PlaySeconds after Begin, presses the
+           overlay's capture key, waits for the clip's upload.
   replay:  waits for -AfterLine (the layer's line once the restore is applied and the game waits for
-           Play), presses the overlay's Play key, lets it run -PlaySeconds.
-  Either way it saves the game window's picture (<exe folder>\capture.png or replay.png) for the agent to
-  check, stops at the first -FailPattern match, then closes the game the way a player does.
+           Play), presses the overlay's Play key, lets it run -PlaySeconds. With -Again it then waits for
+           the Ludeo to end and the overlay's end-of-run screen, presses its focused Play Again, and lets
+           the second run go -PlaySeconds after its Begin (the overlay starts it without a Play screen).
+  Either way it saves the game window's picture (<exe folder>\capture.png or replay.png; with -Again also
+  summary.png and replay2.png) for the agent to check, stops at the first -FailPattern match, then closes the game the way a player does.
   Keys go to the game window's message queue: the user's keyboard, mouse and focus are untouched.
   Run with: powershell -NoProfile -ExecutionPolicy Bypass -File play-game.ps1 -Exe ... -Log ... -Mode ...
 #>
@@ -14,10 +17,12 @@ param(
   [Parameter(Mandatory)][string]$Log,   # the player's default Player.log: a -logFile capture can stop after start-up
   [Parameter(Mandatory)][ValidateSet('capture', 'replay')][string]$Mode,
   [string]$AfterLine = '[Ludeo][dev] entered',   # replay: pass the layer's line once the restore waits for Play
-  [int]$PlaySeconds = 90,   # the clip holds about the last 60 s before the press: it must start mid-run, not at Begin
+  [string]$BeginLine = 'ludeo_GameplaySession_Begin succeeded',   # the SDK's, at ludeoLogLevel = Log
+  [int]$PlaySeconds = 30,   # capture: counted from the Begin line, so loading time never eats into the clip
   [string]$FailPattern = 'continuing without Ludeo|InvalidAuth',   # regex; the run stops at the first match
   [int]$TimeoutSec = 300,   # per wait
-  [int]$Monitor = 0   # 1-based; default: the second screen when there is one, away from the user's work
+  [int]$Monitor = 0,   # 1-based; default: the second screen when there is one, away from the user's work
+  [switch]$Again   # replay: play the Ludeo to its end, then play again from the end-of-run screen
 )
 Add-Type -AssemblyName System.Drawing
 Add-Type 'using System; using System.Runtime.InteropServices; public static class W {
@@ -46,13 +51,13 @@ function Stop-Game {
   }
 }
 
-function Wait-Line([string]$text) {
+function Wait-Line([string]$text, [int]$count = 1) {   # $count: wait for the line's Nth time in the log
   $end = (Get-Date).AddSeconds($TimeoutSec)
   while ((Get-Date) -lt $end -and -not $p.HasExited) {
     $fail = Select-String -LiteralPath $Log -Pattern $FailPattern -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($fail) { Write-Host "FAIL LINE: $($fail.Line)"; Stop-Game; Write-Host "stopped: $Mode, log $Log"; exit 4 }
-    $hit = Select-String -LiteralPath $Log -SimpleMatch $text -ErrorAction SilentlyContinue | Select-Object -Last 1
-    if ($hit) { return $hit.Line }
+    $hits = @(Select-String -LiteralPath $Log -SimpleMatch $text -ErrorAction SilentlyContinue)
+    if ($hits.Count -ge $count) { return $hits[-1].Line }
     Start-Sleep 1
   }
   Write-Host "TIMEOUT or exit while waiting for: $text"   # Write-Host, so the caller still gets $null
@@ -77,7 +82,7 @@ function Press([string]$binding) {
 }
 
 # The window's picture, read even when other windows cover it: the logs can't say what's on screen.
-function Shot {
+function Shot([string]$name = $Mode) {
   $p.Refresh(); $h = $p.MainWindowHandle
   if ($p.HasExited -or $h -eq [IntPtr]::Zero) { 'no game window to take a picture of'; return }
   $r = New-Object W+RECT; [void][W]::GetClientRect($h, [ref]$r)
@@ -85,19 +90,29 @@ function Shot {
   $bmp = New-Object Drawing.Bitmap $r.R, $r.B; $g = [Drawing.Graphics]::FromImage($bmp); $dc = $g.GetHdc()
   [void][W]::PrintWindow($h, $dc, 3); $g.ReleaseHdc($dc); $g.Dispose()   # 3 = client area, GPU content included
   $lit = 0; for ($i = 0; $i -lt 200; $i++) { $c = $bmp.GetPixel((Get-Random $r.R), (Get-Random $r.B)); if ($c.R + $c.G + $c.B -gt 30) { $lit++ } }
-  $file = Join-Path (Split-Path $Exe) "$Mode.png"; $bmp.Save($file); $bmp.Dispose()
+  $file = Join-Path (Split-Path $Exe) "$name.png"; $bmp.Save($file); $bmp.Dispose()
   if ($lit) { "picture: $file" } else { "picture: $file is all black (a dark or loading screen, or a window this can't read)" }
 }
 
 if (Wait-Line $AfterLine) {
   if ($Mode -eq 'capture') {
-    Start-Sleep $PlaySeconds
-    Shot
-    Press 'HighlightCapture'
-    [void](Wait-Line 'Finished uploading video data')
+    if (Wait-Line $BeginLine) {   # no Begin, no gameplay session: nothing to capture
+      Start-Sleep $PlaySeconds
+      Shot
+      Press 'HighlightCapture'
+      [void](Wait-Line 'Finished uploading video data')
+    }
   } else {
     Press 'Confirm'
     Start-Sleep 3; Shot; Start-Sleep ([Math]::Max(0, $PlaySeconds - 3))
+    # Replay -> replay: the auto-start selects one Ludeo per process; the next comes from the end-of-run screen.
+    if ($Again -and (Wait-Line "-> 'SummaryScreen'")) {
+      Start-Sleep 5; Shot 'summary'   # its play-next list loads after the screen opens
+      Press 'Confirm'   # Play Again has the focus
+      if (Wait-Line $BeginLine 2) {
+        Start-Sleep 3; Shot 'replay2'; Start-Sleep ([Math]::Max(0, $PlaySeconds - 3))
+      }
+    }
   }
 }
 Stop-Game

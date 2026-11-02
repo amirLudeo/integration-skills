@@ -117,7 +117,7 @@ methods). Subscribe with `+=`, unsubscribe with `-=`.
 | --- | --- | --- |
 | `LudeoSelected` | `LudeoSelectedCallbackData` | Enter **play** flow (carries `ludeoId`) |
 | `RoomReady` | `LudeoSessionRoomReadyCallbackData` | Room ready → restore (play) / begin |
-| `PlayerConsentUpdated` | `LudeoSessionConsentUpdatedCallbackData` | Gate create/play + gallery (CR-012) |
+| `PlayerConsentUpdated` | `LudeoSessionConsentUpdatedCallbackData` | Gate create/play (CR-012) |
 | `PauseGameRequested` | *(none — plain `Action`)* | Overlay pause (CR-011) |
 | `ResumeGameRequested` | *(none — plain `Action`)* | Overlay resume (CR-011) |
 | `GameBackToMenuRequested` | *(none — plain `Action`)* | Exit-to-menu (a CR-007 exit) |
@@ -149,8 +149,8 @@ session.Dispose (shutdown)     [SDK]
 ```
 
 The `[Layer]` façade (`LudeoController`) wires these callbacks for you; the game calls the façade's
-`[Layer]` methods (`OpenLudeoGallery`, `BeginGameplay`, `EndGameplay`, …), which call the `[SDK]`
-methods above in the right order.
+`[Layer]` methods (`BeginGameplay`, `EndGameplay`, …), which call the `[SDK]` methods above in the
+right order.
 
 > **⚠️ The `onAddPlayer` callback and the `RoomReady` event RACE — `BeginGameplay` needs both.**
 > They are **independent** async events: the `AddPlayer` callback delivers the `LudeoPlayer`, while
@@ -299,9 +299,9 @@ Types: `LudeoSessionOpenRoomParameters`, `LudeoRoomAddPlayerParameters`, `LudeoD
 `LudeoReadableObject`, the `*CallbackData` structs.
 
 **`[Layer]` (from [`unity/REFERENCE-ARCHITECTURE.md`](./unity/REFERENCE-ARCHITECTURE.md) — rename
-freely):** `LudeoController.{BeginGameplay, EndGameplay, AbortGameplay, UpdateStateObjects,
-OpenLudeoGallery}` · `LudeoFlowSwitch.{SetFlags, SwitchToCreate, SwitchToPlay}` ·
-`ILudeoFlow.InitRoom` · `LudeoIntegrationData.{CreateOpenRoomDataForCreator, CreateOpenRoomDataForLudeo}`
+freely):** `LudeoController.{BeginGameplay, EndGameplay, AbortGameplay, UpdateStateObjects}` ·
+`LudeoFlowSwitch.{SetFlags, SwitchToCreate, SwitchToPlay}` · `ILudeoFlow.InitRoom` ·
+`LudeoIntegrationData.{CreateOpenRoomDataForCreator, CreateOpenRoomDataForLudeo}`
 · `LudeoRestoredData`.
 
 **`[Unity]`:** `Time.timeScale` · `SceneManager.LoadScene` · MonoBehaviour `Awake`/`Start`/`Update`/

@@ -37,6 +37,10 @@ for each widened wave.
       census + wave plan** (`## Wave Rollout`, `## Object Type Census`, `## Spawn/Own Pattern Summary`) and
       the user **approved** it (type coverage, load-bearing flags, wave order, Wave 1 = restorable spine +
       must-have set). The **per-entity deep detail is NOT in it yet** — task 0 appends it per wave.
+- [ ] **Scene and prefab contents.** If `ludeo-integration-plan/CODE_MAP.json` → `serialization` is
+      **Mixed** or **ForceBinary**, the readable copy of scenes and prefabs is the dump at
+      `serialization.dump_dir` (`ludeo-integration-plan/project-dump/`), regenerated with
+      `serialization.dump_command` (phase 2 Step 1). Read it instead of asking the integrator for inspector values.
 - [ ] **A timer goal on the debug environment**, so each wave can cut a test Ludeo — `create_goal_or_constraint` in
       [`ludeo-studio-mcp.md`](ludeo-studio-mcp.md).
 - [ ] The task briefs are present in `references/` (see §3): `9a` (deep-scope), `9`, `10`, `11`, `12`.
@@ -57,6 +61,10 @@ subagent that's gone.
 > orchestrator owns it), and to return a short summary + the files it created/edited + any human-questions.
 > On return, **verify the artifacts exist**, relay questions, then **run the gate** (below). Pass state
 > **by file**, never by re-narrating prior output.
+>
+> **Binary projects (Mixed / ForceBinary):** include `serialization.dump_dir` in every subagent's input
+> paths. When a task edited a scene or prefab, re-run `serialization.dump_command` before dispatching the
+> next task, so no subagent reads a stale dump.
 
 **Fix-loop pattern (per gate failure):**
 > When a human gate fails (compile error, missing log line, wrong replay behavior), the orchestrator
@@ -177,9 +185,11 @@ The orchestrator relays whatever a subagent surfaces — it does not invent its 
   displaced-frame bugs — see the Task-4 placement check), plus a 2nd Ludeo for the replay-twice tests.
   **Re-capture** if a prior wave's Ludeo is stale.
 - **Task 2 gate:** approve **wave N's** rows in `RESTORATION_PLAN.md`.
-- **Task 3 gate (wave 1):** replay→replay and the overlay's pause/resume, in the wave's sign-off (you prove
-  freeze → scene load → stub → `Begin` from your own replay's log).
-- **Task 4 gate:** the replay-twice no-leak test and playing the moment to its end, in the wave's sign-off
+- **Task 3 gate (wave 1):** the overlay's pause/resume, in the wave's sign-off (you prove freeze → scene
+  load → stub → `Begin` from your own replay's log, and the replay→replay teardown from its Play Again run,
+  [`agent-play-loop.md`](agent-play-loop.md) → Play again).
+- **Task 4 gate:** the replay-twice no-leak test with a *different* second Ludeo (Play Again replays the same
+  one, so it can't show the first's state leaking) and playing the moment to its end, in the wave's sign-off
   (you prove the first frame's restored state and the **placement sanity check** from your own replay's log
   and screenshot — §3).
 - **End of each wave:** "wave N restores — widen to wave N+1?" (confirm-before-widen), with the evidence.

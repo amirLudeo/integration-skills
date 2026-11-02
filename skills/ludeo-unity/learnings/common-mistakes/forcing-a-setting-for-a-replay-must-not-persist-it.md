@@ -44,5 +44,5 @@ two players), so two-player sessions had been captured for weeks.
 The game's own input manager already checked both values, for exactly this reason. **When you need a
 predicate the game also needs — "is this multiplayer", "is this a boss level", "is this playable" —
 find the game's existing one and reuse it** rather than composing your own from the enum. Then put it
-in one place in the layer and call it everywhere (capture gate, gallery button, restore), so the
-three cannot drift apart.
+in one place in the layer and call it everywhere (capture gate, restore, any other check), so they
+cannot drift apart.

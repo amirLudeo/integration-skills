@@ -31,28 +31,33 @@ waive it.
 
 **Per wave, the target:** mid-run, past the first segment, with the wave's state on screen (`OBJECT_TRACKING.md`
 → `## Wave Rollout`, `CODE_MAP.json` → entry/bootstrap and session boundaries). The script sends no input,
-so the player stands idle for the whole run: pick a spot where an idle player stays alive and in play for
-90 s. If no save holds one, ask the user once to play there and save. Copy the save folder aside before the
-first run, since runs can autosave over it, and put it back when phase 5 ends.
+so the player stands idle for the whole run: pick a spot where an idle player stays alive and in play from
+entering until 30 s after the gameplay session begins. If no save holds one, ask the user once to play
+there and save. Copy the save folder aside before the first run, since runs can autosave over it, and put
+it back when phase 5 ends.
 
 ## Running one game
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File <this skill>/scripts/play-game.ps1 `
-  -Exe <ABS exe> -Log <ABS Player.log> -Mode capture|replay [-AfterLine '<line>']
+  -Exe <ABS exe> -Log <ABS Player.log> -Mode capture|replay [-AfterLine '<line>'] [-Again]
 ```
 
 `-Log` is the default `Player.log` (`%USERPROFILE%\AppData\LocalLow\<Company>\<Product>\`); each run moves
 the last one aside, so judge a run before starting the next. The run stops at the first `InvalidAuth` or
 `continuing without Ludeo`: fix the build's login before the next. Pictures of the game window land next to
-the exe: `capture.png` just before the press, `replay.png` 3 s after Play. The game opens in a window on
+the exe: `capture.png` just before the press, `replay.png` 3 s after Play, and with `-Again` also
+`summary.png` (the end-of-run screen) and `replay2.png` (3 s after the second Begin). The game opens in a window on
 the second screen when there is one; without asking, tell the user when a batch of runs starts and where.
 
 ## Each gate
 
 **Capture** (task 1). In the ini, `devEnter` set and `ludeoToAutoStart` blank. Run with `-Mode capture`: it
-waits for `[Ludeo][dev] entered`, leaves the game alone 90 s (the clip holds about the last 60 s, and all of
-it must be play), then presses the overlay's capture key. Pass:
+waits for `[Ludeo][dev] entered` and the SDK's `ludeo_GameplaySession_Begin succeeded`, leaves the game
+alone 30 s after Begin (however long the loading took, the clip then holds 30 s of play inside an open
+session), then presses the overlay's capture key. No Begin line within `-TimeoutSec` (300 s) means no
+gameplay session opened: the script stops the game without capturing; read the layer's Begin path in the
+log. Pass:
 - the task-1 lines (registration, the wave's writers, no `LudeoResult` errors), then
   `onCaptureVideoRequest. gameplayId=<id>, highlightId=<id>` and `Finished uploading video data for
   highlightId <id>`;
@@ -84,15 +89,29 @@ A Ludeo ends when its time limit runs out, which is roughly its clip length. Any
 after Play has to fit inside that, so keep `-PlaySeconds` under the clip length: a short clip ends the run
 early, and that is not a bug.
 
+**Play again** (once per wave, on a replay that passed). The auto-start selects one Ludeo per process; the
+next one only comes from the overlay's end-of-run screen. Run the replay with `-Again`: after the first run
+the script waits for the Ludeo to end (up to its length; an idle player can also lose sooner), presses the
+screen's focused Play Again, and lets the second run go. The overlay starts that run itself, with no Play
+screen. Pass:
+- `sendInput dispatch action='Confirm' screen='SummaryScreen'`, then `"eventType":"ReplayLudeo"` and
+  `NewLudeoSelected`;
+- the first run's session and room close (`ludeo_GameplaySession_End succeeded`, `ludeo_Room_Close
+  succeeded`), then a second `Opening room … ludeoId='<id>'`, the restore reached, and a second
+  `ludeo_GameplaySession_Begin succeeded`, with no exceptions in between;
+- `replay2.png` shows the moment restored again (HUD back at the captured values), not the end screen or the
+  first run's last frame.
+
 **On a failure,** give the run's log and picture to the task's fix subagent (orchestrator §3), rebuild, and
 re-run the same step. If a replay that passed before fails with no code change, check the environment
 first: once 9 of 45 such replays failed only because the user's save had changed under them. Put the
 copied-aside save back (or replay on an empty profile) before you blame the code.
 
 **Sign-off.** When the wave passes, send the user the evidence (Ludeo ids, the pass lines, `replay.png`) with
-the checks one auto-started launch can't do: replay one Ludeo then another, the overlay's pause and resume,
-and play the moment to its win or lose. Replay-to-replay needs a second Ludeo, so capture twice for a wave
-whose sign-off carries these checks. Ask the user to sign the wave off before you widen. After the first
+the checks the script can't do: pick a different Ludeo from the end-of-run screen's Other Moments (the
+overlay binds no key to move off Play Again), the overlay's pause and resume, and play the moment to its
+win or lose. Other Moments lists only the game's other Ludeos, so capture twice for a wave whose sign-off
+carries these checks. Ask the user to sign the wave off before you widen. After the first
 sign-off, offer once: *"Want me to go through the remaining waves without stopping for sign-off? I'll still
 stop for a failure I can't fix or a decision only you can make."* Record the answer in `KYG.md` so later
 sessions keep it; the user can take it back anytime. With sign-off waived, the user's checks run once, on

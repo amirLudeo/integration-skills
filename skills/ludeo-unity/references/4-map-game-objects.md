@@ -34,6 +34,11 @@ the same file. Output (Part A) is human-approved before the phase-5 wave loop be
 - [ ] **Phase 2** → `ludeo-integration-plan/CODE_MAP.json` — classes, `event_systems`,
       `session_boundaries`, `object_model`, `non_ludeoable_candidates`, the **game-level `save_system`
       block** (mechanism/format/group/entry_points, `per_entity: []`), `serialization`.
+- [ ] **Scene and prefab contents.** If `CODE_MAP.serialization` is **Mixed** or **ForceBinary**, read
+      components and inspector values from the dump at `serialization.dump_dir`
+      (`ludeo-integration-plan/project-dump/`), not by asking the integrator. If the folder is missing, or a
+      scene or prefab changed since it was written, re-run `serialization.dump_command` first (phase 2 Step 1).
+      **ForceText:** read the `.unity` / `.prefab` files directly.
 - [ ] **Phase 3** → `ludeo-integration-plan/SDK_INTEGRATION_POINTS.json` (boundaries / hook map).
 - [ ] **Phase 1** → `ludeo-integration-plan/KYG.md` — the game-level save-system classification
       (the narrative source; the structured form is `CODE_MAP.save_system`). **No `phase 3f` /
@@ -63,7 +68,8 @@ it, scoped to that wave's types). Run only Part A in this phase.
 From `ludeo-integration-plan/`: `CODE_MAP.json` (classes, `event_systems`, `session_boundaries`,
 `object_model`, `non_ludeoable_candidates`, the game-level `save_system` block), `KYG.md` (the
 save-system classification narrative), `SDK_INTEGRATION_POINTS.json` (boundaries), and
-`TDD_<GameName>.md` if present.
+`TDD_<GameName>.md` if present. On a Mixed / ForceBinary project, scene and prefab contents come from
+`CODE_MAP.serialization.dump_dir` (§2).
 
 ### Step A2: Classify how the game spawns & owns objects (foundation)
 Apply `06-TRACKING-PATTERNS.md §2`: §2.1 direct `Instantiate`/`Destroy`, §2.2 central spawner/manager,
